@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro de Funcionários - GDF</title>
+  <link rel="stylesheet" href="/css/styleCadFuncionario.css">
+  <link rel="stylesheet" href="/css/stylePadrao.css">
+  
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="logo">
+        <img src="/img/grupolidon-removebg-preview.png" alt="Logo">
+      </div>
+      <h2>Menu</h2>
+      <ul>
+        <li><a href="/home">Início</a></li>
+        <li><a href="/cadastro">Cadastrar Funcionario</a></li>
+        <li><a href="/solicitacoes">Solicitações</a></li>
+        <li><a href="/controle">Controle de Funcionários</a></li>
+        <li><a href="/cadastro-usuarios">Cadastro de Usuários</a></li>
+        <li><a href="#">Sair</a></li>
+      </ul>
+    </aside>
+
+    <main class="main-area">
+      <h1 class="titulo">Cadastrar Funcionário</h1>
+      <form class="form-funcionario" action="cadastrar-funcionario">
+        <div class="campo">
+          <label for="nome">Nome Completo</label>
+          <input type="text" id="nome" name="nome" required>
+        </div>
+
+        <div class="campo">
+          <label for="cpf">CPF</label>
+          <input type="text" id="cpf" name="cpf" required placeholder="000.000.000-00">
+        </div>
+
+        <div class="campo">
+          <label for="loja">Loja</label>
+          <select name="loja" id="loja">
+            <option value="Olimáquinas Patrocínio">Olimáquinas Patrocínio</option>
+            <option value="Olimáquinas Uberlândia">Olimáquinas Uberlândia</option>
+            <option value="Olimáquinas Patos de Minas">Olimáquinas Patos de Minas</option>
+            <option value="Olimáquinas Formosa">Olimáquinas Formosa</option>
+            <option value="Olimáquinas Catanduva">Olimáquinas Catanduva</option>
+            <option value="Olimáquinas São Sebastião do Paraíso">Olimáquinas São Sebastião do Paraíso</option>
+            <option value="Olimáquinas Franca">Olimáquinas Franca</option>
+            <option value="Lovol Patrocínio">Lovol Patrocínio</option>
+            <option value="Lovol Ribeirão Preto">Lovol Ribeirão Preto</option>
+            <option value="Valmáquinas Patrocínio">Valmáquinas Patrocínio</option>
+            <option value="M.A.S Máquinas Patrocínio">M.A.S Máquinas Patrocínio</option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label for="cargo">Cargo</label>
+          <input type="text" id="cargo" name="cargo" required>
+        </div>
+
+        <div class="equipamentos">
+          <p>Equipamentos Necessários</p>
+          <div class="check-opcoes">
+            <label>
+              <input type="checkbox" name="equipamentos" value="celular">
+              📱 Celular
+            </label>
+            <label>
+              <input type="checkbox" name="equipamentos" value="notebook">
+              💻 Notebook
+            </label>
+            <label>
+              <input type="checkbox" name="equipamentos" value="chip">
+              📶 Chip
+            </label>
+          </div>
+        </div>
+
+        <div class="campo">
+          <label for="observacoes">Observações</label>
+          <textarea id="observacoes" name="observacoes" rows="4" placeholder="Observações"></textarea>
+        </div>
+
+        <button type="submit" class="btn-enviar">Cadastrar e Enviar Solicitação</button>
+      </form>
+    </main>
+  </div>
+
+  <script src="/JS-Front/cadFuncionario.js"></script>
+  <!--<script>
+    document.querySelector('.form-funcionario').addEventListener('submit', async function (e) {
+      e.preventDefault(); 
+  
+      const nome = document.getElementById('nome').value;
+      const cargo = document.getElementById('cargo').value;
+      const loja = document.getElementById('loja').value;
+  
+      const equipamentos = document.querySelectorAll('input[name="equipamentos"]:checked');
+      const observacoes = document.getElementById('observacoes').value;
+      let equipamentosArray = [];
+      equipamentos.forEach(eq => {
+        equipamentosArray.push(eq.value);
+      });
+  
+      try {
+        const resposta = await fetch('http://localhost:3000/funcionario', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            nome,
+            cargo,
+            loja,
+            equipamentos: equipamentosArray,
+            observacoes
+          })
+        });
+  
+        const resultado = await resposta.json();
+        console.log('Usuário cadastrado:', resultado);
+        alert('Usuário cadastrado com sucesso!');
+      } catch (erro) {
+        console.error('Erro ao cadastrar:', erro);
+        alert('Erro ao cadastrar funcionário.');
+      }
+    });
+  </script> -->
+  
+</body>
+</html>

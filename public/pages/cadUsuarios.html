@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Usuários</title>
+    <link rel="stylesheet" href="/css/styleCadUsuarios.css">
+    <link rel="stylesheet" href="/css/stylePadrao.css">
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="logo">
+            <img src="/img/grupolidon-removebg-preview.png" alt="Logo">
+            </div>
+            <h2>Menu</h2>
+            <ul>
+            <li><a href="/home">Início</a></li>
+            <li><a href="/cadastro">Cadastrar Funcionario</a></li>
+            <li><a href="/solicitacoes">Solicitações</a></li>
+            <li><a href="/controle">Controle de Funcionários</a></li>
+            <li><a href="/cadastro-usuarios">Cadastro de Usuários</a></li>
+            <li><a href="#">Sair</a></li>
+            </ul>
+        </aside>
+        <main class="main-area">
+            <h1 class="titulo">Cadastrar Usuários</h1>
+            <form class="form-usuario" action="cadastrar-usuario">
+              
+              <div class="campo">
+                <label for="nome">Nome</label>
+                <input type="text" id="nome" name="nome" required>
+              </div>
+          
+              <div class="campo">
+                <label for="cargo">Cargo</label>
+                <select name="cargo" id="cargo">
+                    <option value="TI">TI</option>
+                    <option value="Financeiro">Financeiro</option>
+                    <option value="Recursos Humanos">Recursos Humanos</option>
+                    <option value="Gerente">Gerente</option>
+                  </select>
+              </div>
+          
+              <div class="campo">
+                <label for="usuario">Nome de Usuário</label>
+                <input type="text" id="usuario" name="usuario" required>
+              </div>
+          
+              <div class="campo">
+                <label for="senha">Senha</label>
+                <input type="password" id="senha" name="senha" required>
+              </div>
+          
+              <div class="campo">
+                <label for="confirmarSenha">Confirmar Senha</label>
+                <input type="password" id="confirmarSenha" name="confirmarSenha" required>
+              </div>
+          
+              <div class="campo">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" name="email" required>
+              </div>
+          
+              <button type="submit" class="btn-enviar">Cadastrar Usúario</button>
+            </form>
+          </main>
+    </div>
+
+    <script src="/JS-Front/cadUsuarios.js"></script>
+   <!--  <script>
+        document.querySelector('.form-usuario').addEventListener('submit', async function (e) {
+          e.preventDefault(); 
+      
+          const nome = document.getElementById('nome').value;
+          const cargo = document.getElementById('cargo').value;
+          const usuario = document.getElementById('usuario').value;
+          const senha = document.getElementById('senha').value;
+          const confirmarSenha = document.getElementById('confirmarSenha').value;
+          const email = document.getElementById('email').value;
+
+          if(senha != confirmarSenha){
+            alert("Senhas não coincidem !");
+            return;
+          }
+      
+          try {
+            const resposta = await fetch('http://localhost:3000/usuario', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                nome,
+                cargo,
+                usuario,
+                senha,
+                confirmarSenha,
+                email
+              })
+            });
+      
+            const resultado = await resposta.json();
+            console.log('Usuário cadastrado:', resultado);
+            alert('Usuário cadastrado com sucesso!');
+          } catch (erro) {
+            console.error('Erro ao cadastrar:', erro);
+            alert('Erro ao cadastrar funcionário.');
+          }
+        });
+      </script> -->
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitações - GDF</title>
+    <link rel="stylesheet" href="/css/stylePadrao.css">
+    <link rel="stylesheet" href="/css/styleSolicitacoes.css">
+</head>
+<body>
+    <div class="container">
+      <aside class="sidebar">
+        <div class="logo">
+          <img src="/img/grupolidon-removebg-preview.png" alt="Logo">
+        </div>
+        <h2>Menu</h2>
+        <ul>
+          <li><a href="/home">Início</a></li>
+          <li><a href="/cadastro">Cadastrar Funcionario</a></li>
+          <li><a href="/solicitacoes">Solicitações</a></li>
+          <li><a href="/controle">Controle de Funcionários</a></li>
+          <li><a href="/cadastro-usuarios">Cadastro de Usuários</a></li>
+          <li><a href="#">Sair</a></li>
+        </ul>
+      </aside>
+  
+      <div class="content">
+        <h1>Solicitações de Funcionários</h1>
+        <div class="tabela-container">
+          <table id="tabela-solicitacoes">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <!--<th>CPF</th>-->
+                <th>Cargo</th>
+                <th>Loja</th>
+                <th>Celular 📱</th>
+                <th>Notebook 💻</th>
+                <th>Chip 📶</th>
+                <!--<th>Status</th>-->
+                <!--<th>Aprovado por</th> -->
+                <th>Observações</th>
+                <th>Gerente</th>
+                <th>Financeiro</th>
+               <!-- <th>Modelo Celular</th>
+                <th>Modelo Notebook</th>
+                <th>Chip</th>
+                <th>Encerrar</th>-->
+              </tr>
+            </thead>
+            <tbody>
+              <!-- As linhas são colocadas aqui -->
+            </tbody>
+          </table>
+          <div id="modal-confirmacao" class="container-modal">
+            <div class="modal">
+              <h3 class="h3-modal">Você tem certeza que deseja finalizar?</h3>
+              <div id="erros-validacao" class="erros-validacao"></div>
+              <button id="btn-confirmar-finalizacao">Confirmar</button>
+              <button id="btn-cancelar-finalizacao" style="margin-left: 10px;">Cancelar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <script src="/JS-Front/solicitacoes.js"></script>
+
+    <!--  <script>
+        window.addEventListener('DOMContentLoaded', async () => {
+          const tabela = document.querySelector('#tabela-solicitacoes tbody');
+
+          try {
+            const resposta = await fetch('http://localhost:3000/funcionarios');
+            const funcionarios = await resposta.json();
+
+            funcionarios.forEach(f => {
+              const linha = document.createElement('tr');
+
+              linha.innerHTML = `
+                <td>${f.nome}</td>
+                <td>${f.cargo}</td>
+                <td>${f.loja}</td>
+                <td><input type="checkbox" class="checkbox" ${f.celular ? 'checked' : ''}/></td>
+                <td><input type="checkbox" class="checkbox" ${f.notebook ? 'checked' : ''}/></td>
+                <td><input type="checkbox" class="checkbox" ${f.chip ? 'checked' : ''}/></td>
+                
+                <td class="obs-icon">📝${f.observacoes}</td>
+                <td class="acoes">
+                  <button class="btn-aprovar" title="Aprovar Solicitação">✔️</button>
+                  <button class="btn-recusar" title="Recusar Solicitação">✖️</button>
+                </td>
+                <td class="financeiro">
+                  <button class="btn-aprovar" title="Financeiro Aprovou">✔️</button>
+                  <button class="btn-recusar" title="Financeiro Recusou">✖️</button>
+                </td>
+                <td class="coluna-extra" style="display: none;"></td>
+              `;
+
+              tabela.appendChild(linha);
+
+              const btnAprovarAcao = linha.querySelector('.acoes .btn-aprovar');
+              const btnRecusarAcao = linha.querySelector('.acoes .btn-recusar');
+              const btnAprovarFin = linha.querySelector('.financeiro .btn-aprovar');
+              const btnRecusarFin = linha.querySelector('.financeiro .btn-recusar');
+
+              const checkboxCelular = linha.querySelector('td:nth-child(4) input[type="checkbox"]');
+              const checkboxNotebook = linha.querySelector('td:nth-child(5) input[type="checkbox"]');
+              const checkboxChip = linha.querySelector('td:nth-child(6) input[type="checkbox"]');
+
+              const colunaExtra = linha.querySelector('.coluna-extra');
+
+              let acaoAprovada = false;
+              let financeiroAprovado = false;
+
+              function verificarCondicoes() {
+                if (acaoAprovada && financeiroAprovado) {
+                  let campos = '';
+
+                  if (checkboxCelular.checked) {
+                    campos += `
+                      <div class="inputGroup">
+                        <strong>Modelo Celular:</strong>
+                        <input type="text" class="input-celular" required />
+                      </div>
+                    `;
+                  }
+
+                  if (checkboxNotebook.checked) {
+                    campos += `
+                      <div class="inputGroup">
+                        <strong>Modelo Notebook:</strong>
+                        <input type="text" class="input-notebook" required />
+                      </div>
+                    `;
+                  }
+
+                  if (checkboxChip.checked) {
+                    campos += `
+                      <div class="inputGroup">
+                        <strong>Modelo Chip:</strong>
+                        <input type="text" class="input-chip" required />
+                      </div>
+                    `;
+                  }
+
+                  colunaExtra.innerHTML = campos + `
+                    <button class="btn-finalizar" title="Clique para finalizar a solicitação">Finalizar</button>
+                  `;
+                  colunaExtra.style.display = 'table-cell';
+                } else {
+                  colunaExtra.style.display = 'none';
+                }
+              }
+
+              btnAprovarAcao.addEventListener('click', () => {
+                acaoAprovada = true;
+                /*btnAprovarAcao.style.display = 'none';*/
+                btnRecusarAcao.style.display = 'none';
+                verificarCondicoes();
+              });
+
+              btnRecusarAcao.addEventListener('click', () => {
+                btnAprovarAcao.style.display = 'none';
+                //btnRecusarAcao.style.display = 'none';
+              });
+
+              btnAprovarFin.addEventListener('click', () => {
+                financeiroAprovado = true;
+                //btnAprovarFin.style.display = 'none';
+                btnRecusarFin.style.display = 'none';
+                verificarCondicoes();
+              });
+
+              btnRecusarFin.addEventListener('click', () => {
+                btnAprovarFin.style.display = 'none';
+                //btnRecusarFin.style.display = 'none';
+              });
+
+              checkboxCelular.addEventListener('change', verificarCondicoes);
+              checkboxNotebook.addEventListener('change', verificarCondicoes);
+              checkboxChip.addEventListener('change', verificarCondicoes);
+            });
+          } catch (erro) {
+            console.error('Erro ao carregar funcionários:', erro);
+          }
+      });              
+      </script>
+      -->
+  </body>
+</html>

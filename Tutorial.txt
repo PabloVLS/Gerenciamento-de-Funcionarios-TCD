@@ -1,0 +1,6 @@
+Pra rodar:
+node app.js
+E no navegador: http://localhost:3000
+
+recarregamento automático durante o desenvolvimento:
+npx nodemon app.js

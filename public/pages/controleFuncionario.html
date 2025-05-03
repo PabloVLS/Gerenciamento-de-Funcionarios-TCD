@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Controle de Funcionário - GDF</title>
+  <link rel="stylesheet" href="/css/stylePadrao.css">
+  <link rel="stylesheet" href="/css/styleControleFunc.css">
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="logo">
+        <img src="/img/grupolidon-removebg-preview.png" alt="Logo">
+      </div>
+      <h2>Menu</h2>
+      <ul>
+        <li><a href="/home">Início</a></li>
+        <li><a href="/cadastro">Cadastrar Funcionario</a></li>
+        <li><a href="/solicitacoes">Solicitações</a></li>
+        <li><a href="/controle">Controle de Funcionários</a></li>
+        <li><a href="/cadastro-usuarios">Cadastro de Usuários</a></li>
+        <li><a href="#">Sair</a></li>
+      </ul>
+    </aside>
+
+    <div class="content">
+        <h1>Funcionários e Equipamentos</h1>
+        <div class="tabela-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Cargo</th>
+                <th>Loja</th>
+                <th>Celular 📱</th>
+                <th>Notebook 💻</th>
+                <th>Chip 📶</th>
+                <th>Data</th>
+                <th>Opções</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!--Aqui e onde vai gerar as linhas do controle-->
+            </tbody>
+          </table>
+        </div>
+      </div>
+  </div>
+
+  
+  <script src="/JS-Front/controleFuncionario.js"></script>
+ <!-- <script>
+    // Abre o dropdown opçoes ...
+    function toggleDropdown(button) {
+      const dropdown = button.nextElementSibling;
+      dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    }
+  
+    // Fecha dropdown se clicar fora
+    window.addEventListener("click", function (event) {
+      if (!event.target.matches('.btn-opcoes')) {
+        document.querySelectorAll('.dropdown-menu').forEach(menu => {
+          menu.style.display = 'none';
+        });
+      }
+    });
+  </script>
+
+
+<script>
+    document.querySelectorAll('.btn-demitir').forEach((botao, index) => {
+      botao.addEventListener('click', function () {
+        const linha = botao.closest('tr');
+        linha.children[0].textContent = 'Desligado';
+        linha.children[1].textContent = '—';
+        linha.children[5].textContent = new Date().toLocaleDateString(); 
+      });
+    });
+  </script>
+  -->
+</body>
+</html>
