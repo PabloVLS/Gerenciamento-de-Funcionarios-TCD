@@ -1,71 +1,19 @@
-.tabela-container {
-    overflow-x: auto;
-  }
-  
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: #fff;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    margin-top: 20px;
-  }
-  
-  th, td {
-    padding: 10px;
-    border: 1px solid #ddd;
-    text-align: center;
-    font-size: 14px;
-  }
-  
-  th {
-    background-color: #007bff;
-    color: white;
-  }
-  
-  h1 {
-    text-align: center;
-    margin-top: 20px;
-    font-size: 24px;
-  }
+.table-custom-blue {
+  background-color: #016ee2;
+  color: white; 
+}
 
-  
-  .menu-container {
-    position: relative;
-    display: inline-block;
-  }
-  
-  .dropdown-menu {
-    display: none;
-    position: absolute;
-    right: 0; /* Alinha à direita do botão */
-    top: 55%; /* Fica abaixo do botão */
-    background-color: white;
-    min-width: 120px;
-    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-    z-index: 10;
-    border-radius: 4px;
-    overflow: hidden;
-  }
-  
-  .btn-opcoes {
-    background-color: transparent;
-    border: none;
-    font-size: 22px;
-    cursor: pointer;
-    padding: 4px 8px;
-  }
-  
-  .btn-demitir {
-    background-color: #ff0019;
-    color: white;
-    padding: 6px;
-    border: none;
-    width: 100%;
-    text-align: center;
-    cursor: pointer;
-  }
-  
-  .btn-demitir:hover {
-    background-color: #ff0019;
-  }
-  
+.table-custom-blue thead th {
+  background-color: #016ee2; 
+  color: white;
+}
+
+.table-custom-blue tbody tr:hover {
+  background-color: #016ee2; 
+}
+
+/* Ver se ta sendo utilzado msm #f2f2f2*/
+.linha-desligado {
+  background-color: #e60000;
+  color: #999;
+}

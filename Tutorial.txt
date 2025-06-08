@@ -4,3 +4,9 @@ E no navegador: http://localhost:3000
 
 recarregamento automático durante o desenvolvimento:
 npx nodemon app.js
+
+PQ N USEI CLASSES MODELOS
+“Como usamos Node.js com Express e acesso direto via pg, optamos por uma abordagem funcional e direta, 
+sem necessidade de definir classes. Os dados são manipulados como objetos JSON, o que é suficiente para o 
+escopo do sistema.”
+pg serve para conectar seu backend Node.js a um banco de dados PostgreSQL. Ele é uma biblioteca oficial do PostgreSQL para Node.js.

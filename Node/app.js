@@ -8,10 +8,11 @@ const bodyParser = require('body-parser');
 const path = require('path');
 
 // Importa as rotas separadas para organização
+const homeRoutes         = require('./routes/homeRoutes');
 const funcionarioRoutes  = require('./routes/funcionarioRoutes');
 const usuarioRoutes      = require('./routes/usuarioRoutes');
 const loginRoutes        = require('./routes/loginRoutes');
-const controleRoutes     = require('./routes/controleRoutes');
+const equipamentosRoutes = require('./routes/equipamentosRoutes');
 const solicitacoesRoutes = require('./routes/solicitacoesRoutes');
 
 // Cria a aplicação Express
@@ -21,6 +22,7 @@ const port = 3000;
 // ---------- MIDDLEWARES ----------
 // Permite que a aplicação entenda JSON no corpo das requisições
 app.use(bodyParser.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Permite a leitura de dados de formulários (x-www-form-urlencoded)
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -37,13 +39,15 @@ app.get('/home',             (req, res) => res.sendFile(path.join(__dirname, '..
 app.get('/controle',         (req, res) => res.sendFile(path.join(__dirname, '../public/pages/controleFuncionario.html')));
 app.get('/solicitacoes',     (req, res) => res.sendFile(path.join(__dirname, '../public/pages/solicitacoes.html')));
 app.get('/cadastro-usuarios',(req, res) => res.sendFile(path.join(__dirname, '../public/pages/cadUsuarios.html')));
+app.get('/controle-usuarios',(req, res) => res.sendFile(path.join(__dirname, '../public/pages/controleUsuarios.html')));
 
 // ---------- ROTAS DE API (JSON) ----------
 // Aqui você delega o tratamento das rotas para arquivos separados
+app.use('/api/home',         homeRoutes);            // Utilitarios Home
 app.use('/api/funcionarios', funcionarioRoutes);     // CRUD de funcionários
 app.use('/api/usuarios',     usuarioRoutes);         // Cadastro de usuários
 app.use('/api/login',        loginRoutes);           // Autenticação de login
-app.use('/api/controle',     controleRoutes);        // Controle de Equipamentos e Funcionários
+app.use('/api/equipamentos', equipamentosRoutes);    // Controle de Equipamentos e Funcionários
 app.use('/api/solicitacoes', solicitacoesRoutes);    // Solicitações de RH ou gerente
 
 // ---------- INICIA O SERVIDOR ----------

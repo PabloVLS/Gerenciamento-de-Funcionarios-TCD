@@ -1,244 +1,678 @@
-window.addEventListener('DOMContentLoaded', async () => {
-    const tabela = document.querySelector('#tabela-solicitacoes tbody');
-    const cargoUsuario = localStorage.getItem('usuarioCargo');
+document.addEventListener('DOMContentLoaded', () => {
+  carregarSolicitacoes();
+});
+async function carregarSolicitacoes() {
+  const listaSolicitacoes = document.getElementById('listaSolicitacoes');
+  if (!listaSolicitacoes) return;
 
-    try {
-      const resposta = await fetch('http://localhost:3000/api/funcionarios');
-      const funcionarios = await resposta.json();
-  
-      funcionarios.forEach(f => {
-        const linha = document.createElement('tr');
-  
-        linha.innerHTML = `
-          <td>${f.nome}</td>
-          <td>${f.cargo}</td>
-          <td>${f.loja}</td>
-          <td><input type="checkbox" class="checkbox" ${f.celular ? 'checked' : ''}/></td>
-          <td><input type="checkbox" class="checkbox" ${f.notebook ? 'checked' : ''}/></td>
-          <td><input type="checkbox" class="checkbox" ${f.chip ? 'checked' : ''}/></td>
-          <td class="obs-icon">📝${f.observacoes}</td>
-          <td class="acoes">
-            <button class="btn-aprovar" title="Aprovar Solicitação">✔️</button>
-            <button class="btn-recusar" title="Recusar Solicitação">✖️</button>
-          </td>
-          <td class="financeiro">
-            <button class="btn-aprovar" title="Financeiro Aprovou">✔️</button>
-            <button class="btn-recusar" title="Financeiro Recusou">✖️</button>
-          </td>
-          <td class="coluna-extra" style="display: none;"></td>
-        `;
-  
-        tabela.appendChild(linha);
-  
-        const btnAprovarAcao = linha.querySelector('.acoes .btn-aprovar');
-        const btnRecusarAcao = linha.querySelector('.acoes .btn-recusar');
-        const btnAprovarFin = linha.querySelector('.financeiro .btn-aprovar');
-        const btnRecusarFin = linha.querySelector('.financeiro .btn-recusar');
-  
-        const checkboxCelular = linha.querySelector('td:nth-child(4) input[type="checkbox"]');
-        const checkboxNotebook = linha.querySelector('td:nth-child(5) input[type="checkbox"]');
-        const checkboxChip = linha.querySelector('td:nth-child(6) input[type="checkbox"]');
-  
-        const colunaExtra = linha.querySelector('.coluna-extra');
-  
-        let acaoAprovada = false;
-        let financeiroAprovado = false;
-  
-        function verificarCondicoes() {
-          if (acaoAprovada && financeiroAprovado) {
-            let campos = '';
-  
-            if (checkboxCelular.checked) {
-              campos += `
-                <div class="inputGroup">
-                  <strong>Modelo Celular:</strong>
-                  <input type="text" class="input-celular" required />
-                </div>
-              `;
-            }
-  
-            if (checkboxNotebook.checked) {
-              campos += `
-                <div class="inputGroup">
-                  <strong>Modelo Notebook:</strong>
-                  <input type="text" class="input-notebook" required />
-                </div>
-              `;
-            }
-  
-            if (checkboxChip.checked) {
-              campos += `
-                <div class="inputGroup">
-                  <strong>Modelo Chip:</strong>
-                  <input type="text" class="input-chip" required />
-                </div>
-              `;
-            }
-  
-            colunaExtra.innerHTML = campos + `
-              <button class="btn-finalizar" title="Clique para finalizar a solicitação">Finalizar</button>
-            `;
-            colunaExtra.style.display = 'table-cell';
+  try {
+    const resposta = await fetch('http://localhost:3000/api/solicitacoes/pendentes');
+    const solicitacoes = await resposta.json();
+    console.log(solicitacoes);
 
-            //Logica pra quando clicar em finalizar no solicitações
-            const btnFinalizar = linha.querySelector('.btn-finalizar');
+    listaSolicitacoes.innerHTML = solicitacoes.map(s => {
+      //.log(s);
 
-            btnFinalizar.addEventListener('click', () => {
-              const modal = document.querySelector('#modal-confirmacao');
-              const errosValidacao = document.querySelector('#erros-validacao');
-              const btnConfirmar = document.querySelector('#btn-confirmar-finalizacao');
-              const btnCancelar = document.querySelector('#btn-cancelar-finalizacao');
-            
-              modal.style.display ='flex'; // Exibe o modal de confirmação
-              errosValidacao.innerHTML = '';
-               // coleta os valores atuais dos campos de entrada (caso já estejam preenchidos)
-              const inputCelular = linha.querySelector('.input-celular')?.value || '';
-              const inputNotebook = linha.querySelector('.input-notebook')?.value || '';
-              const inputChip = linha.querySelector('.input-chip')?.value || '';
-            
-              let erros = [];
-              //se o checkbox estiver marcado, mas o campo correspondente estiver vazio, gera aviso
-              if (checkboxCelular.checked && inputCelular.trim() === '') {
-                erros.push('Campo de celular está vazio.');
-              }
-              if (checkboxNotebook.checked && inputNotebook.trim() === '') {
-                erros.push('Campo de notebook está vazio.');
-              }
-              if (checkboxChip.checked && inputChip.trim() === '') {
-                erros.push('Campo de chip está vazio.');
-              }
-            
-              if (erros.length > 0) {
-                errosValidacao.innerHTML = erros.map(e => `<p style="color:red;">${e}</p>`).join('');
-              }
-            
-              btnCancelar.onclick = () => {
-                modal.style.display = 'none';
-              };
-              // revisa os campos dnv e envia os dados
-              btnConfirmar.onclick = async () => {
-                const inputCelularAtual = linha.querySelector('.input-celular')?.value || '';
-                const inputNotebookAtual = linha.querySelector('.input-notebook')?.value || '';
-                const inputChipAtual = linha.querySelector('.input-chip')?.value || '';
-              
-                let errosAtualizados = [];
-              
-                if (checkboxCelular.checked && inputCelularAtual.trim() === '') {
-                  errosAtualizados.push('Campo de celular está vazio.');
-                }
-                if (checkboxNotebook.checked && inputNotebookAtual.trim() === '') {
-                  errosAtualizados.push('Campo de notebook está vazio.');
-                }
-                if (checkboxChip.checked && inputChipAtual.trim() === '') {
-                  errosAtualizados.push('Campo de chip está vazio.');
-                }
-              
-                if (errosAtualizados.length > 0) {
-                  errosValidacao.innerHTML = errosAtualizados.map(e => `<p style="color:red;">${e}</p>`).join('');
-                }
-                // Desativa o botão temporariamente para evitar múltiplos envios
-                btnConfirmar.disabled = true;
-                btnConfirmar.innerText = 'Finalizando...';
-              
-                // Monta o objeto com os dados a serem enviados
-                const dadosFinalizacao = {
-                  id_funcionario: f.id,
-                  nome: f.nome,
-                  cargo: f.cargo,
-                  loja: f.loja,
-                  modelo_celular: inputCelularAtual || null,
-                  modelo_notebook: inputNotebookAtual || null,
-                  modelo_chip: inputChipAtual || null,
-                };
-              
-                try {
-                  const resp = await fetch('http://localhost:3000/api/controle', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(dadosFinalizacao)
-                  });
-              
-                  const result = await resp.json();
-              
-                  // Remove a linha da tabela e fecha o modal
-                  if (result.sucesso) {
-                    // Atualiza a solicitação original para marcá-la como finalizada
-                    console.log("Finalizando solicitação ID:", f.id);
-                    await fetch(`http://localhost:3000/api/solicitacoes/finalizar/${f.id}`, {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json'
-                      },
-                      body: JSON.stringify(dadosFinalizacao)
-                    });
-                    tabela.removeChild(linha);
-                    modal.style.display = 'none';
-                    alert('Solicitação finalizada e registrada no controle!');
-                  } else {
-                    alert('Erro: ' + (result.mensagem || 'Erro ao salvar no controle.'));
-                  }
-                } catch (erro) {
-                  console.error('Erro ao finalizar:', erro);
-                  alert('Erro ao finalizar.');
-                } finally {
-                  btnConfirmar.disabled = false;
-                  btnConfirmar.innerText = 'Confirmar';
-                }
-              };
-              
-            });            
-            
-          } else {
-            colunaExtra.style.display = 'none';
-          }
+      // Flags de aprovação
+      const gerenteAprovou = s.aprovado_gerente === true;
+      const financeiroAprovou = s.aprovado_financeiro === true;
+
+      // Checar se todos os itens estão preenchidos
+      const itensPreenchidos = s.itens.length > 0 && s.itens.some(item => item.status === 'preenchido');
+
+      const tiposSolicitados = s.itens.map(item => item.tipo.charAt(0).toUpperCase() + item.tipo.slice(1));
+
+      const itensHTML = `
+        <div class="row">
+          ${!itensPreenchidos
+          ? `<p><strong>Itens Solicitados:</strong> ${tiposSolicitados.join(', ')}</p>`
+          : s.itens.map(item => {
+            if (item.status !== 'preenchido') return '';
+
+            if (item.tipo === 'celular' && item.celular) {
+              return `
+                      <div class="col-md-4">
+                        <h6>📱 Celular</h6>
+                        <p><strong>Modelo:</strong> ${item.celular.modelo}</p>
+                        <p><strong>IMEI:</strong> ${item.celular.imei}</p>
+                        <p><strong>Número:</strong> ${item.celular.numero}</p>
+                      </div>
+                    `;
+            } else if (item.tipo === 'notebook' && item.notebook) {
+              return `
+                      <div class="col-md-4">
+                        <h6>💻 Notebook</h6>
+                        <p><strong>Modelo:</strong> ${item.notebook.modelo}</p>
+                        <p><strong>Patrimônio:</strong> ${item.notebook.numero_patrimonio}</p>
+                        <p><strong>Sistema:</strong> ${item.notebook.sistema_operacional}</p>
+                        <p><strong>Preço:</strong> R$ ${item.notebook.preco}</p>
+                      </div>
+                    `;
+            } else if (item.tipo === 'chip' && item.chip) {
+              return `
+                      <div class="col-md-4">
+                        <h6>📶 Chip</h6>
+                        <p><strong>Número:</strong> ${item.chip.numero}</p>
+                        <p><strong>Operadora:</strong> ${item.chip.operadora}</p>
+                        <p><strong>Plano:</strong> ${item.chip.plano}</p>
+                      </div>
+                    `;
+            }
+
+            return '';
+          }).join('')
         }
-  
-        btnAprovarAcao.addEventListener('click', () => {
-          // Verificação de permissão
-          if (cargoUsuario !== 'Gerente') {
-            alert('Você não tem permissão.');
-            return;
-          }
-          acaoAprovada = true;
-          btnRecusarAcao.style.display = 'none';
-          verificarCondicoes();
-        });
-  
-        btnRecusarAcao.addEventListener('click', () => {
-          // Verificação de permissão
-          if (cargoUsuario !== 'Gerente') {
-            alert('Você não tem permissão.');
-            return;
-          }
-          btnAprovarAcao.style.display = 'none';
-        });
-  
-        btnAprovarFin.addEventListener('click', () => {
-          // Verificação de permissão
-          if (cargoUsuario !== 'Financeiro' && cargoUsuario !== 'Gerente') {
-            alert('Você não tem permissão.');
-            return;
-          }
-          financeiroAprovado = true;
-          btnRecusarFin.style.display = 'none';
-          verificarCondicoes();
-        });
-  
-        btnRecusarFin.addEventListener('click', () => {
-          // Verificação de permissão
-          if (cargoUsuario !== 'RH' && cargoUsuario !== 'Gerente') {
-            alert('Você não tem permissão.');
-            return;
-          }
-          btnAprovarFin.style.display = 'none';
-        });
-  
-        checkboxCelular.addEventListener('change', verificarCondicoes);
-        checkboxNotebook.addEventListener('change', verificarCondicoes);
-        checkboxChip.addEventListener('change', verificarCondicoes);
+        </div>
+      `;
+
+
+      let botoes = '';
+
+      if (!gerenteAprovou) {
+        botoes += `<button class="btn btn-success btn-sm" onclick="aprovarGerente(${s.solicitacao_id})">Aprovar (Gerente)</button>`;
+        botoes += `<button class="btn btn-danger btn-sm" onclick="encerrarSolicitacao(${s.solicitacao_id})">Encerrar</button>`;
+      } else if (gerenteAprovou && !itensPreenchidos) {
+        // Gerente já aprovou, mas ainda não preencheu os itens
+        botoes += `<button class="btn btn-warning btn-sm" onclick="abrirModalPreenchimento(${s.solicitacao_id})">Preencher Itens</button>`;
+        botoes += `<button class="btn btn-danger btn-sm" onclick="encerrarSolicitacao(${s.solicitacao_id})">Encerrar</button>`;
+      } else if (gerenteAprovou && itensPreenchidos && !financeiroAprovou) {
+        // Gerente aprovou e preencheu os itens, financeiro pode aprovar
+        botoes += `<button class="btn btn-primary btn-sm" onclick="aprovarFinanceiro(${s.solicitacao_id})">Aprovar (Financeiro)</button>`;
+        botoes += `<button class="btn btn-danger btn-sm" onclick="encerrarSolicitacao(${s.solicitacao_id})">Encerrar</button>`;
+      } else if (gerenteAprovou && itensPreenchidos && financeiroAprovou) {
+        // Gerente aprovou e preencheu os itens, financeiro pode aprovar
+        botoes += `<button class="btn btn-secondary btn-sm" onclick="finalizarSolicitacao(${s.solicitacao_id})">Finalizar Solicitação</button>`;
+      }
+
+
+
+      return `
+        <div class="card mb-4">
+          <div class="card-body">
+            <h5 class="card-title">${s.nome_funcionario} - ${s.cargo} (${s.loja})</h5>
+            <p><strong>Tipo de Solicitação:</strong> ${s.tipo === 'contratacao' ? 'Contratação' : 'Substituição'}</p>
+            <p><strong>Observações:</strong> ${s.observacoes || 'Nenhuma'}</p>
+            <p><strong>Criado por:</strong> ${s.nome_criador ? s.nome_criador : 'Informação não disponível'}</p>
+            <p><strong>Aprovado pelo gerente:</strong> ${s.aprovado_por_gerente ? s.aprovado_por_gerente : 'Ainda não aprovado'}</p>
+            <p><strong>Aprovado pelo financeiro:</strong> ${s.aprovado_por_financeiro ? s.aprovado_por_financeiro : 'Ainda não aprovado'}</p>
+
+
+            <div>
+              
+              <ul class="mb-3">
+                ${itensHTML}
+              </ul>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2">
+              ${botoes}
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+  } catch (err) {
+    console.error('Erro ao carregar solicitações:', err);
+  }
+}
+
+
+const modalEquipamentos = new bootstrap.Modal(document.getElementById('modalAprovacaoGerente'));
+const camposEquipamentos = document.getElementById('camposEquipamentos');
+let idSolicitacaoAtual = null;
+let itensSolicitadosAtuais = [];
+
+async function abrirModalPreenchimento(solicitacaoId) {
+  idSolicitacaoAtual = solicitacaoId;
+
+  try {
+    const resposta = await fetch(`http://localhost:3000/api/solicitacoes/${solicitacaoId}/itens`);
+    const itens = await resposta.json();
+    itensSolicitadosAtuais = itens;
+
+    camposEquipamentos.innerHTML = itens.map(item => {
+      if (item.tipo === 'notebook') {
+        return `
+          <div class="mb-3">
+            <h6>Notebook</h6>
+            <input type="hidden" name="item_id" value="${item.id}">
+            <input class="form-control mb-2" name="modelo_notebook_${item.id}" placeholder="Modelo" required>
+            <input class="form-control mb-2" name="numero_patrimonio_${item.id}" placeholder="Número Patrimônio">
+            <input class="form-control mb-2" name="sistema_operacional_${item.id}" placeholder="Sistema Operacional">
+            <input class="form-control" name="valor_notebook_${item.id}" placeholder="Valor (R$)">
+          </div>`;
+      }
+      if (item.tipo === 'celular') {
+        return `
+          <div class="mb-3">
+            <h6>Celular</h6>
+            <input type="hidden" name="item_id" value="${item.id}">
+            <input class="form-control mb-2" name="modelo_celular_${item.id}" placeholder="Modelo" required>
+            <input class="form-control mb-2" name="imei_${item.id}" placeholder="IMEI">
+            <input class="form-control mb-2" name="numero_${item.id}" placeholder="Número Patrimõnio">
+            <input class="form-control" name="valor_celular_${item.id}" placeholder="Valor (R$)">
+          </div>`;
+      }
+      if (item.tipo === 'chip') {
+        return `
+          <div class="mb-3">
+            <h6>Chip</h6>
+            <input type="hidden" name="item_id" value="${item.id}">
+            <input class="form-control mb-2" name="numero_chip_${item.id}" placeholder="Número" required>
+            <input class="form-control mb-2" name="operadora_chip_${item.id}" placeholder="Operadora">
+            <input class="form-control" name="plano_${item.id}" placeholder="Plano">
+          </div>`;
+      }
+      return '';
+    }).join('');
+
+    modalEquipamentos.show();
+  } catch (err) {
+    console.error('Erro ao carregar itens da solicitação:', err);
+  }
+}
+
+// document.getElementById('formEquipamentos').addEventListener('submit', async (e) => {
+//   e.preventDefault();
+
+//   const formData = new FormData(e.target);
+//   const dados = [];
+
+//   itensSolicitadosAtuais.forEach(item => {
+//     if (item.tipo === 'notebook') {
+//       dados.push({
+//         tipo: 'notebook',
+//         item_solicitado_id: item.id,
+//         modelo: formData.get(`modelo_notebook_${item.id}`),
+//         numero_patrimonio: formData.get(`numero_patrimonio_${item.id}`),
+//         sistema_operacional: formData.get(`sistema_operacional_${item.id}`),
+//         valor: formData.get(`valor_notebook_${item.id}`)
+//       });
+//     }
+//     if (item.tipo === 'celular') {
+//       dados.push({
+//         tipo: 'celular',
+//         item_solicitado_id: item.id,
+//         modelo: formData.get(`modelo_celular_${item.id}`),
+//         imei: formData.get(`imei_${item.id}`),
+//         numero: formData.get(`numero_${item.id}`),
+//         operadora: formData.get(`operadora_${item.id}`),
+//         valor: formData.get(`valor_celular_${item.id}`)
+//       });
+//     }
+//     if (item.tipo === 'chip') {
+//       dados.push({
+//         tipo: 'chip',
+//         item_solicitado_id: item.id,
+//         numero: formData.get(`numero_chip_${item.id}`),
+//         operadora: formData.get(`operadora_chip_${item.id}`),
+//         plano: formData.get(`plano_${item.id}`)
+//       });
+//     }
+//   });
+
+//   try {
+//     const resposta = await fetch(`http://localhost:3000/api/solicitacoes/${idSolicitacaoAtual}/aprovar-gerente`, {
+//       method: 'POST',
+//       headers: { 'Content-Type': 'application/json' },
+//       body: JSON.stringify({ equipamentos: dados })
+//     });
+
+//     if (resposta.ok) {
+//       alert('Equipamentos salvos com sucesso!');
+//       modalEquipamentos.hide();
+//       carregarSolicitacoes();
+//     } else {
+//       alert('Erro ao salvar os equipamentos.');
+//     }
+//   } catch (erro) {
+//     console.error(erro);
+//     alert('Erro na comunicação com o servidor.');
+//   }
+// });
+
+
+document.getElementById('formEquipamentos').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const formData = new FormData(e.target);
+  const dados = [];
+
+  itensSolicitadosAtuais.forEach(item => {
+    if (item.tipo === 'notebook') {
+      dados.push({
+        tipo: 'notebook',
+        itemId: item.id,
+        modelo: formData.get(`modelo_notebook_${item.id}`),
+        numero_patrimonio: formData.get(`numero_patrimonio_${item.id}`),
+        sistema_operacional: formData.get(`sistema_operacional_${item.id}`),
+        preco: formData.get(`valor_notebook_${item.id}`),
+        preenchido_por: nomeUsuarioAtual
       });
-    } catch (erro) {
-      console.error('Erro ao carregar funcionários:', erro);
+    }
+    if (item.tipo === 'celular') {
+      dados.push({
+        tipo: 'celular',
+        itemId: item.id,
+        modelo: formData.get(`modelo_celular_${item.id}`),
+        imei: formData.get(`imei_${item.id}`),
+        numero: formData.get(`numero_${item.id}`),
+        operadora: formData.get(`operadora_${item.id}`),
+        preco: formData.get(`valor_celular_${item.id}`),
+        preenchido_por: nomeUsuarioAtual
+      });
+    }
+    if (item.tipo === 'chip') {
+      dados.push({
+        tipo: 'chip',
+        itemId: item.id,
+        numero: formData.get(`numero_chip_${item.id}`),
+        operadora: formData.get(`operadora_chip_${item.id}`),
+        plano: formData.get(`plano_${item.id}`),
+        preenchido_por: nomeUsuarioAtual
+      });
     }
   });
-  
+
+  try {
+    for (const item of dados) {
+      const resposta = await fetch(`http://localhost:3000/api/solicitacoes/itens/${item.itemId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(item)
+      });
+
+      if (!resposta.ok) {
+        throw new Error(`Erro ao salvar item ${item.itemId}`);
+      }
+    }
+
+    await Swal.fire({
+      icon: 'success',
+      title: 'Sucesso!',
+      text: 'Todos os equipamentos foram preenchidos com sucesso!',
+      confirmButtonColor: '#3085d6',
+    });
+    modalEquipamentos.hide();
+    carregarSolicitacoes();
+  } catch (erro) {
+    console.error(erro);
+    Swal.fire({
+      icon: 'error',
+      title: 'Erro!',
+      text: 'Erro ao salvar os equipamentos.',
+      confirmButtonColor: '#d33',
+    });
+  }
+});
+
+
+
+
+
+
+function temPermissao(permissoes = []) {
+  const cargo = localStorage.getItem('usuarioCargo');
+  return permissoes.includes(cargo);
+}
+
+async function aprovarGerente(solicitacaoId) {
+  if (!temPermissao(['Gerente'])) {
+    await Swal.fire({
+      icon: 'error',
+      title: 'Acesso negado',
+      text: 'Você não tem permissão para aprovar como gerente.',
+    });
+    return;
+  }
+
+  const nomeGerente = localStorage.getItem('usuarioNome');
+  if (!nomeGerente) return;
+
+  try {
+    const resposta = await fetch(`http://localhost:3000/api/solicitacoes/${solicitacaoId}/aprovar-gerente`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nome_gerente: nomeGerente })
+    });
+
+    if (!resposta.ok) throw new Error('Erro na aprovação');
+
+    await Swal.fire('Aprovado!', 'Solicitação aprovada.', 'success');
+    carregarSolicitacoes();
+  } catch (erro) {
+    console.error(erro);
+    await Swal.fire('Erro', 'Erro ao aprovar como gerente.', 'error');
+  }
+}
+
+async function aprovarFinanceiro(solicitacaoId) {
+  if (!temPermissao(['Financeiro'])) {
+    await Swal.fire({
+      icon: 'error',
+      title: 'Acesso negado',
+      text: 'Você não tem permissão para aprovar como financeiro.',
+    });
+    return;
+  }
+
+  const nomeFinanceiro = localStorage.getItem('usuarioNome');
+  if (!nomeFinanceiro) return;
+
+  try {
+    const resposta = await fetch(`http://localhost:3000/api/solicitacoes/${solicitacaoId}/aprovar-financeiro`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nome_financeiro: nomeFinanceiro })
+    });
+
+    if (!resposta.ok) throw new Error('Erro na aprovação');
+
+    await Swal.fire('Aprovado!', 'Solicitação aprovada pelo financeiro.', 'success');
+    carregarSolicitacoes();
+  } catch (erro) {
+    console.error(erro);
+    await Swal.fire('Erro', 'Erro ao aprovar como financeiro.', 'error');
+  }
+}
+
+async function finalizarSolicitacao(id) {
+  if (!temPermissao(['Gerente', 'Financeiro'])) {
+    await Swal.fire({
+      icon: 'error',
+      title: 'Acesso negado',
+      text: 'Você não tem permissão para finalizar a solicitação.',
+    });
+    return;
+  }
+
+  const confirmar = await Swal.fire({
+    title: 'Finalizar Solicitação?',
+    text: 'Todos os itens devem estar preenchidos.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Finalizar',
+    cancelButtonText: 'Cancelar'
+  });
+
+  if (!confirmar.isConfirmed) return;
+
+  try {
+    const resposta = await fetch(`/api/solicitacoes/${id}/finalizar`, {
+      method: 'PUT'
+    });
+
+    if (!resposta.ok) {
+      const erro = await resposta.json();
+      await Swal.fire('Erro', erro.erro || 'Erro ao finalizar', 'error');
+      return;
+    }
+
+    const data = await resposta.json();
+    await Swal.fire('Sucesso', data.mensagem, 'success');
+    carregarSolicitacoes();
+
+  } catch (erro) {
+    console.error(erro);
+    await Swal.fire('Erro', 'Erro ao finalizar a solicitação.', 'error');
+  }
+}
+
+async function encerrarSolicitacao(id) {
+  if (!temPermissao(['Gerente'])) {
+    await Swal.fire({
+      icon: 'error',
+      title: 'Acesso negado',
+      text: 'Você não tem permissão para encerrar a solicitação.',
+    });
+    return;
+  }
+
+  const confirmar = await Swal.fire({
+    title: 'Encerrar Solicitação?',
+    text: 'Tem certeza que deseja encerrar esta solicitação?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sim, encerrar',
+    cancelButtonText: 'Cancelar'
+  });
+
+  if (!confirmar.isConfirmed) return;
+
+  try {
+    const resposta = await fetch(`/api/solicitacoes/${id}/encerrar`, {
+      method: 'PATCH'
+    });
+
+    if (!resposta.ok) throw new Error('Erro ao encerrar');
+
+    const data = await resposta.json();
+    await Swal.fire('Encerrada', data.mensagem, 'success');
+    carregarSolicitacoes();
+
+  } catch (erro) {
+    console.error(erro);
+    await Swal.fire('Erro', 'Erro ao encerrar a solicitação.', 'error');
+  }
+}
+
+
+
+
+
+
+
+async function salvarItensPreenchidos() {
+  const form = document.getElementById('formEquipamentos');
+  const formData = new FormData(form);
+  const dados = {};
+
+  // Agrupar os dados por ID
+  for (const [chave, valor] of formData.entries()) {
+    const match = chave.match(/^(.+)_([0-9]+)$/); // Ex: modelo_notebook_4
+    if (match) {
+      const campo = match[1]; // modelo_notebook, numero_chip, etc.
+      const id = match[2];
+
+      if (!dados[id]) dados[id] = {};
+      dados[id][campo] = valor.trim();
+    }
+  }
+
+  try {
+    console.log("Dados agrupados por itemId:", dados);
+    for (const itemId in dados) {
+      const campos = dados[itemId];
+
+      let tipo = '';
+      if (Object.keys(campos).some(c => c.includes('notebook'))) {
+        tipo = 'notebook';
+      } else if (Object.keys(campos).some(c => c.includes('celular'))) {
+        tipo = 'celular';
+      } else if (Object.keys(campos).some(c => c.includes('chip'))) {
+        tipo = 'chip';
+      } else {
+        console.warn(`Tipo não identificado para o item ${itemId}`);
+        continue;
+      }
+
+      const payload = {
+        ...campos,
+        tipo,
+        preenchido_por: 'Cassio' // ou usuário logado
+      };
+      console.log(`Enviando dados para itemId ${itemId}:`, payload);
+      const resposta = await fetch(`http://localhost:3000/api/solicitacoes/itens/${itemId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!resposta.ok) {
+        throw new Error(`Erro ao salvar item ${itemId}`);
+      }
+    }
+
+    await Swal.fire('Preenchido!', 'Itens preenchidos com sucesso.', 'success');
+    modalEquipamentos.hide();
+    carregarSolicitacoes();
+
+  } catch (erro) {
+    console.error('Erro ao salvar os itens:', erro);
+    await Swal.fire('Erro!', 'Erro ao preencher os itens.', 'error');
+  }
+}
+
+
+
+
+
+
+
+
+// async function carregarSolicitacoes() {
+//   const listaSolicitacoes = document.getElementById('listaSolicitacoes');
+//   if (!listaSolicitacoes) return;
+
+//   try {
+//     const resposta = await fetch('http://localhost:3000/api/solicitacoes/pendentes');
+//     const solicitacoes = await resposta.json();
+
+//     listaSolicitacoes.innerHTML = solicitacoes.map(s => {
+//       console.log(s);
+//       return `
+//     <div class="card mb-4">
+//       <div class="card-body">
+//         <h5 class="card-title">${s.nome_funcionario} - ${s.cargo} (${s.loja})</h5>
+//         <p><strong>Tipo de Solicitação:</strong> ${s.tipo === 'contratacao' ? 'Contratação' : 'Substituição'}</p>
+//         <p><strong>Observações:</strong> ${s.observacoes || 'Nenhuma'}</p>
+
+//         <div>
+//           <strong>Itens Solicitados:</strong>
+//           <ul class="mb-3">
+//             ${s.itens.map(item => `
+//               <li>${item.tipo} - <span class="text-muted">a preencher</span></li>
+//             `).join('')}
+//           </ul>
+//         </div>
+
+//         <div class="d-flex flex-wrap gap-2">
+//           <button class="btn btn-success btn-sm" onclick="abrirModalAprovacao(${s.solicitacao_id})">Aprovar (Gerente)</button>
+//           <button class="btn btn-primary btn-sm">Aprovar (Financeiro)</button>
+//           <button class="btn btn-danger btn-sm">Encerrar</button>
+//         </div>
+//       </div>
+//     </div>
+//   `;
+//     }).join('');
+
+
+//   } catch (err) {
+//     console.error('Erro ao carregar solicitações:', err);
+//   }
+// }
+
+
+
+
+
+
+// async function aprovarGerente(solicitacaoId) {
+//   const nomeGerente = "Cassio";
+//   //console.log("no aprovar gerente o id e:" + solicitacaoId)
+//   if (!nomeGerente) return;
+
+//   try {
+//     const resposta = await fetch(`http://localhost:3000/api/solicitacoes/${solicitacaoId}/aprovar-gerente`, {
+//       method: 'PUT',
+//       headers: { 'Content-Type': 'application/json' },
+//       body: JSON.stringify({ nome_gerente: nomeGerente })
+//     });
+
+//     if (!resposta.ok) throw new Error('Erro na aprovação');
+
+//     Swal.fire('Aprovado!', 'Solicitação aprovada pelo gerente.', 'success');
+//     carregarSolicitacoes(); // recarrega a lista atualizada
+//   } catch (erro) {
+//     console.error(erro);
+//     Swal.fire('Erro', 'Erro ao aprovar como gerente.', 'error');
+//   }
+// }
+
+
+
+
+// async function aprovarFinanceiro(solicitacaoId) {
+//   const nomeFinanceiro = "Marcela";
+
+//   if (!nomeFinanceiro) return;
+
+//   try {
+//     const resposta = await fetch(`http://localhost:3000/api/solicitacoes/${solicitacaoId}/aprovar-financeiro`, {
+//       method: 'PUT',
+//       headers: { 'Content-Type': 'application/json' },
+//       body: JSON.stringify({ nome_financeiro: nomeFinanceiro })
+//     });
+
+//     if (!resposta.ok) throw new Error('Erro na aprovação');
+
+//     Swal.fire('Aprovado!', 'Solicitação aprovada pelo financeiro.', 'success');
+//     carregarSolicitacoes();
+//   } catch (erro) {
+//     console.error(erro);
+//     Swal.fire('Erro', 'Erro ao aprovar como financeiro.', 'error');
+//   }
+// }
+
+
+// async function finalizarSolicitacao(id) {
+//   const confirmar = confirm("Finalizar a solicitação? Todos os itens devem estar preenchidos.");
+//   if (!confirmar) return;
+
+//   try {
+//     const resposta = await fetch(`/api/solicitacoes/${id}/finalizar`, {
+//       method: 'PUT'
+//     });
+
+//     if (!resposta.ok) {
+//       const erro = await resposta.json();
+//       Swal.fire('Erro', erro.erro || 'Erro ao finalizar', 'error');
+//       return;
+//     }
+
+//     const data = await resposta.json();
+//     Swal.fire('Sucesso', data.mensagem, 'success');
+//     carregarSolicitacoes();
+
+//   } catch (erro) {
+//     console.error(erro);
+//     Swal.fire('Erro', 'Erro ao finalizar a solicitação.', 'error');
+//   }
+// }
+
+
+// async function encerrarSolicitacao(id) {
+//   if (!temPermissao(['Gerente'])) {
+//     alert('Você não tem permissão.');
+//     return;
+//   }
+//   const confirmar = confirm("Tem certeza que deseja encerrar esta solicitação?");
+//   if (!confirmar) return;
+
+//   try {
+//     const resposta = await fetch(`/api/solicitacoes/${id}/encerrar`, {
+//       method: 'PATCH'
+//     });
+
+//     if (!resposta.ok) throw new Error('Erro ao encerrar');
+
+//     const data = await resposta.json();
+//     Swal.fire('Encerrada', data.mensagem, 'success');
+//     carregarSolicitacoes();
+
+//   } catch (erro) {
+//     console.error(erro);
+//     Swal.fire('Erro', 'Erro ao encerrar a solicitação.', 'error');
+//   }
+// }

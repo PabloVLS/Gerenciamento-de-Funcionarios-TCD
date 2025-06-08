@@ -1,191 +1,93 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solicitações - GDF</title>
-    <link rel="stylesheet" href="/css/stylePadrao.css">
-    <link rel="stylesheet" href="/css/styleSolicitacoes.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Solicitações - GDF</title>
+  <link rel="stylesheet" href="/css/stylePadrao.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styleSolicitacoes.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
+
 <body>
-    <div class="container">
+  <div class="container-fluid">
+    <div class="row">
       <aside class="sidebar">
-        <div class="logo">
-          <img src="/img/grupolidon-removebg-preview.png" alt="Logo">
+        <div class="text-center mb-4">
+          <img src="/img/grupolidon-removebg-preview.png" alt="Logo" class="img-fluid" style="width: 208px;" />
         </div>
-        <h2>Menu</h2>
-        <ul>
-          <li><a href="/home">Início</a></li>
-          <li><a href="/cadastro">Cadastrar Funcionario</a></li>
-          <li><a href="/solicitacoes">Solicitações</a></li>
-          <li><a href="/controle">Controle de Funcionários</a></li>
-          <li><a href="/cadastro-usuarios">Cadastro de Usuários</a></li>
-          <li><a href="#">Sair</a></li>
+        <h4 class="text-center" style="margin-top: 41px;">Menu</h4>
+        <ul class="nav flex-column">
+          <li class="nav-item"><a class="nav-link text-white" href="/home">Início</a></li>
+          <li class="nav-item"><a class="nav-link text-white" href="/cadastro">Cadastrar Funcionário</a></li>
+          <li class="nav-item"><a class="nav-link text-white active" href="/solicitacoes">Solicitações</a></li>
+          <li class="nav-item"><a class="nav-link text-white" href="/controle">Controle de Funcionários</a></li>
+          <li class="nav-item"><a class="nav-link text-white" href="/cadastro-usuarios">Cadastro de Usuários</a></li>
+          <li class="nav-item"><a class="nav-link text-white" href="/controle-usuarios">Controle de Usuários</a></li>
+          <li class="nav-item"><a class="nav-link text-danger" href="/">Sair</a></li>
         </ul>
       </aside>
-  
-      <div class="content">
-        <h1>Solicitações de Funcionários</h1>
-        <div class="tabela-container">
-          <table id="tabela-solicitacoes">
-            <thead>
-              <tr>
-                <th>Nome</th>
-                <!--<th>CPF</th>-->
-                <th>Cargo</th>
-                <th>Loja</th>
-                <th>Celular 📱</th>
-                <th>Notebook 💻</th>
-                <th>Chip 📶</th>
-                <!--<th>Status</th>-->
-                <!--<th>Aprovado por</th> -->
-                <th>Observações</th>
-                <th>Gerente</th>
-                <th>Financeiro</th>
-               <!-- <th>Modelo Celular</th>
-                <th>Modelo Notebook</th>
-                <th>Chip</th>
-                <th>Encerrar</th>-->
-              </tr>
-            </thead>
-            <tbody>
-              <!-- As linhas são colocadas aqui -->
-            </tbody>
-          </table>
-          <div id="modal-confirmacao" class="container-modal">
-            <div class="modal">
-              <h3 class="h3-modal">Você tem certeza que deseja finalizar?</h3>
-              <div id="erros-validacao" class="erros-validacao"></div>
-              <button id="btn-confirmar-finalizacao">Confirmar</button>
-              <button id="btn-cancelar-finalizacao" style="margin-left: 10px;">Cancelar</button>
-            </div>
-          </div>
+
+      <main class="conteudoSolicitacoes  p-4">
+        <h2 class="titulo text-center">Solicitações de Funcionários</h2>
+        <div class="linha-horizontal"></div>
+        <div id="listaSolicitacoes">
+          <!-- conteúdo inserido pelo JS -->
+        </div>
+      </main>
+    </div>
+  </div>
+
+
+  <!-- Modal de Confirmação -->
+  <div class="modal fade" id="modalConfirmacao" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-warning">
+          <h5 class="modal-title" id="modalLabel">Confirmar Ação</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p>Tem certeza que deseja finalizar esta solicitação?</p>
+          <div id="erros-validacao" class="text-danger small"></div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-confirmar-finalizacao" type="button" class="btn btn-success">Confirmar</button>
+          <button id="btn-cancelar-finalizacao" type="button" class="btn btn-secondary"
+            data-bs-dismiss="modal">Cancelar</button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal de Preenchimento dos Equipamentos (aprovar do Gerente) -->
+  <div class="modal fade" id="modalAprovacaoGerente" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <form id="formEquipamentos">
+          <div class="modal-header">
+            <h5 class="modal-title">Preencher Equipamentos</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+          </div>
+          <div class="modal-body" id="camposEquipamentos">
+            <!-- Campos serão inseridos via JS -->
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-success" onclick="salvarItensPreenchidos()">Salvar
+              Equipamentos</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 
 
-      <script src="/JS-Front/solicitacoes.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="/JS-Front/solicitacoes.js"></script>
 
-    <!--  <script>
-        window.addEventListener('DOMContentLoaded', async () => {
-          const tabela = document.querySelector('#tabela-solicitacoes tbody');
+</body>
 
-          try {
-            const resposta = await fetch('http://localhost:3000/funcionarios');
-            const funcionarios = await resposta.json();
-
-            funcionarios.forEach(f => {
-              const linha = document.createElement('tr');
-
-              linha.innerHTML = `
-                <td>${f.nome}</td>
-                <td>${f.cargo}</td>
-                <td>${f.loja}</td>
-                <td><input type="checkbox" class="checkbox" ${f.celular ? 'checked' : ''}/></td>
-                <td><input type="checkbox" class="checkbox" ${f.notebook ? 'checked' : ''}/></td>
-                <td><input type="checkbox" class="checkbox" ${f.chip ? 'checked' : ''}/></td>
-                
-                <td class="obs-icon">📝${f.observacoes}</td>
-                <td class="acoes">
-                  <button class="btn-aprovar" title="Aprovar Solicitação">✔️</button>
-                  <button class="btn-recusar" title="Recusar Solicitação">✖️</button>
-                </td>
-                <td class="financeiro">
-                  <button class="btn-aprovar" title="Financeiro Aprovou">✔️</button>
-                  <button class="btn-recusar" title="Financeiro Recusou">✖️</button>
-                </td>
-                <td class="coluna-extra" style="display: none;"></td>
-              `;
-
-              tabela.appendChild(linha);
-
-              const btnAprovarAcao = linha.querySelector('.acoes .btn-aprovar');
-              const btnRecusarAcao = linha.querySelector('.acoes .btn-recusar');
-              const btnAprovarFin = linha.querySelector('.financeiro .btn-aprovar');
-              const btnRecusarFin = linha.querySelector('.financeiro .btn-recusar');
-
-              const checkboxCelular = linha.querySelector('td:nth-child(4) input[type="checkbox"]');
-              const checkboxNotebook = linha.querySelector('td:nth-child(5) input[type="checkbox"]');
-              const checkboxChip = linha.querySelector('td:nth-child(6) input[type="checkbox"]');
-
-              const colunaExtra = linha.querySelector('.coluna-extra');
-
-              let acaoAprovada = false;
-              let financeiroAprovado = false;
-
-              function verificarCondicoes() {
-                if (acaoAprovada && financeiroAprovado) {
-                  let campos = '';
-
-                  if (checkboxCelular.checked) {
-                    campos += `
-                      <div class="inputGroup">
-                        <strong>Modelo Celular:</strong>
-                        <input type="text" class="input-celular" required />
-                      </div>
-                    `;
-                  }
-
-                  if (checkboxNotebook.checked) {
-                    campos += `
-                      <div class="inputGroup">
-                        <strong>Modelo Notebook:</strong>
-                        <input type="text" class="input-notebook" required />
-                      </div>
-                    `;
-                  }
-
-                  if (checkboxChip.checked) {
-                    campos += `
-                      <div class="inputGroup">
-                        <strong>Modelo Chip:</strong>
-                        <input type="text" class="input-chip" required />
-                      </div>
-                    `;
-                  }
-
-                  colunaExtra.innerHTML = campos + `
-                    <button class="btn-finalizar" title="Clique para finalizar a solicitação">Finalizar</button>
-                  `;
-                  colunaExtra.style.display = 'table-cell';
-                } else {
-                  colunaExtra.style.display = 'none';
-                }
-              }
-
-              btnAprovarAcao.addEventListener('click', () => {
-                acaoAprovada = true;
-                /*btnAprovarAcao.style.display = 'none';*/
-                btnRecusarAcao.style.display = 'none';
-                verificarCondicoes();
-              });
-
-              btnRecusarAcao.addEventListener('click', () => {
-                btnAprovarAcao.style.display = 'none';
-                //btnRecusarAcao.style.display = 'none';
-              });
-
-              btnAprovarFin.addEventListener('click', () => {
-                financeiroAprovado = true;
-                //btnAprovarFin.style.display = 'none';
-                btnRecusarFin.style.display = 'none';
-                verificarCondicoes();
-              });
-
-              btnRecusarFin.addEventListener('click', () => {
-                btnAprovarFin.style.display = 'none';
-                //btnRecusarFin.style.display = 'none';
-              });
-
-              checkboxCelular.addEventListener('change', verificarCondicoes);
-              checkboxNotebook.addEventListener('change', verificarCondicoes);
-              checkboxChip.addEventListener('change', verificarCondicoes);
-            });
-          } catch (erro) {
-            console.error('Erro ao carregar funcionários:', erro);
-          }
-      });              
-      </script>
-      -->
-  </body>
 </html>

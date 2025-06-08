@@ -1,0 +1,77 @@
+.table-responsive {
+  position: relative;
+  overflow: visible !important;
+  z-index: 0;
+}
+
+.table {
+  /* overflow: visible !important; */
+  position: relative;
+}
+
+.table td,
+.table th {
+  /* overflow: visible !important; */
+  position: relative;
+  z-index: 1;
+}
+
+.menu-container {
+  position: relative;
+  display: inline-block;
+  z-index: 100;
+}
+
+.dropdown-menu {
+  position: absolute;
+  bottom: 100%; /* em vez de top */
+  left: 0;
+  margin-bottom: 0.5rem; /* espaçamento opcional */
+  z-index: 9999;
+  display: none;
+  white-space: nowrap;
+  background: #fff;
+  border: 1px solid #ccc;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.dropdown-menu.show {
+  display: block !important;
+}
+
+
+.table {
+  background-color: #fff;
+  border-radius: 12px;
+  overflow: visible;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
+}
+
+
+.table thead th {
+  background-color: #343a40;
+  color: #fff;
+  border-color: #454d55;
+}
+
+.table .btn {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.875rem;
+  border-radius: 6px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  main {
+    margin-left: 0;
+    padding: 1rem;
+  }
+
+  main h1 {
+    font-size: 1.6rem;
+  }
+
+  .table-responsive {
+    font-size: 0.85rem;
+  }
+}

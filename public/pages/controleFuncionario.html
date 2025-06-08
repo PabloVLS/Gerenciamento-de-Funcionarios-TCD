@@ -1,83 +1,293 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Controle de Funcionário - GDF</title>
   <link rel="stylesheet" href="/css/stylePadrao.css">
   <link rel="stylesheet" href="/css/styleControleFunc.css">
-</head>
-<body>
-  <div class="container">
-    <aside class="sidebar">
-      <div class="logo">
-        <img src="/img/grupolidon-removebg-preview.png" alt="Logo">
-      </div>
-      <h2>Menu</h2>
-      <ul>
-        <li><a href="/home">Início</a></li>
-        <li><a href="/cadastro">Cadastrar Funcionario</a></li>
-        <li><a href="/solicitacoes">Solicitações</a></li>
-        <li><a href="/controle">Controle de Funcionários</a></li>
-        <li><a href="/cadastro-usuarios">Cadastro de Usuários</a></li>
-        <li><a href="#">Sair</a></li>
-      </ul>
-    </aside>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 
-    <div class="content">
-        <h1>Funcionários e Equipamentos</h1>
-        <div class="tabela-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Nome</th>
-                <th>Cargo</th>
-                <th>Loja</th>
-                <th>Celular 📱</th>
-                <th>Notebook 💻</th>
-                <th>Chip 📶</th>
-                <th>Data</th>
-                <th>Opções</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!--Aqui e onde vai gerar as linhas do controle-->
-            </tbody>
-          </table>
-        </div>
+</head>
+
+<body>
+  <aside class="sidebar">
+    <div class="text-center mb-4">
+      <img src="/img/grupolidon-removebg-preview.png" alt="Logo" class="img-fluid" style="max-height: 80px" />
+    </div>
+    <h4 class="text-center" style="margin-top: 41px;">Menu</h4>
+    <ul class="nav flex-column">
+      <li class="nav-item"><a class="nav-link text-white" href="/home">Início</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="/cadastro">Cadastrar Funcionário</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="/solicitacoes">Solicitações</a></li>
+      <li class="nav-item"><a class="nav-link text-white active" href="/controle">Controle de Funcionários</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="/cadastro-usuarios">Cadastro de Usuários</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="/controle-usuarios">Controle de Usuários</a></li>
+      <li class="nav-item"><a class="nav-link text-danger" href="/">Sair</a></li>
+    </ul>
+  </aside>
+
+  <main class="main-area">
+    <h1 class="titulo text-center">Controle de Funcionários</h1>
+    <div class="mb-4 d-flex justify-content-end">
+      <input type="text" id="pesquisa" class="form-control w-25" placeholder="Pesquisar por nome ou CPF...">
+    </div>
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover align-middle text-center">
+        <thead class="table-dark">
+          <tr>
+            <th>Nome</th>
+            <th>Cargo</th>
+            <th>CPF</th>
+            <th>Loja</th>
+            <th>Celular</th>
+            <th>Notebook</th>
+            <th>Chip</th>
+            <th>Observações</th>
+            <th>Funcionário</th>
+            <th>Status</th>
+            <th>Opções</th>
+          </tr>
+        </thead>
+        <tbody id="tabela-funcionarios">
+          <!-- Linhas preenchidas via JS -->
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+
+  <!-- Modal de Edição -->
+  <div class="modal fade" id="modalEdicao" tabindex="-1" aria-labelledby="modalEdicaoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content shadow-lg border-0">
+        <form id="form-edicao">
+          <input type="hidden" id="editId" name="id" />
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title" id="modalEdicaoLabel">
+              <i class="bi bi-pencil-square me-2"></i>Editar Funcionário
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+              aria-label="Fechar"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="editNome" class="form-label">Nome</label>
+                <input type="text" class="form-control" id="editNome" name="nome" required>
+              </div>
+              <div class="col-md-6">
+                <label for="editCargo" class="form-label">Cargo</label>
+                <input type="text" class="form-control" id="editCargo" name="cargo" required>
+              </div>
+              <div class="col-md-6">
+                <label for="editLoja" class="form-label">Loja</label>
+                <select class="form-select" id="editLoja" name="loja" required>
+                  <option value="" disabled selected>Selecione uma loja</option>
+                  <option value="Olimáquinas Patrocínio">Olimáquinas Patrocínio</option>
+                  <option value="Olimáquinas Uberlândia">Olimáquinas Uberlândia</option>
+                  <option value="Olimáquinas Patos de Minas">Olimáquinas Patos de Minas</option>
+                  <option value="Olimáquinas Formosa">Olimáquinas Formosa</option>
+                  <option value="Olimáquinas Catanduva">Olimáquinas Catanduva</option>
+                  <option value="Olimáquinas São Sebastião do Paraíso">Olimáquinas São Sebastião do Paraíso</option>
+                  <option value="Olimáquinas Franca">Olimáquinas Franca</option>
+                  <option value="Lovol Patrocínio">Lovol Patrocínio</option>
+                  <option value="Lovol Ribeirão Preto">Lovol Ribeirão Preto</option>
+                  <option value="Valmáquinas Patrocínio">Valmáquinas Patrocínio</option>
+                  <option value="M.A.S Máquinas Patrocínio">M.A.S Máquinas Patrocínio</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label for="editCPF" class="form-label">CPF</label>
+                <input type="text" class="form-control" id="editCPF" name="cpf" required>
+              </div>
+              <div class="col-md-12">
+                <label for="editObservações" class="form-label">Observações</label>
+                <textarea class="form-control" id="editObservacoes" name="observacoes" rows="2"></textarea>
+              </div>
+              <div class="col-md-6">
+                <label for="editFotoFunc" class="form-label">Foto do Funcionário</label>
+                <input type="file" class="form-control" id="editFotoFunc" name="foto" accept="image/*">
+                <img id="previewFotoFunc" src="" alt="Foto do Funcionário" class="img-fluid rounded shadow-sm"
+                  style="max-height: 120px;">
+              </div>
+              <div class="col-md-6">
+                <label for="editFotoCPF" class="form-label">Foto do CPF</label>
+                <input type="file" class="form-control" id="editFotoCPF" name="foto_cpf" accept="image/*">
+                <img id="previewFotoCPF" src="" alt="Foto do CPF" class="img-fluid rounded shadow-sm"
+                  style="max-height: 120px;">
+              </div>
+              <div class="col-md-6">
+                <label for="editStatus" class="form-label">Status</label>
+                <input type="text" class="form-control-plaintext bg-light border rounded px-2" id="editStatus"
+                  name="status" readonly>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer bg-light">
+            <button id="btnAbrirModalDemissao" type="button" class="btn btn-outline-danger">
+              <i class="bi bi-person-x-fill me-1"></i>Demitir Funcionário
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+              <i class="bi bi-x-circle me-1"></i>Fechar
+            </button>
+            <button type="submit" class="btn btn-success">
+              <i class="bi bi-save me-1"></i>Salvar Alterações
+            </button>
+          </div>
+        </form>
       </div>
+    </div>
   </div>
 
-  
-  <script src="/JS-Front/controleFuncionario.js"></script>
- <!-- <script>
-    // Abre o dropdown opçoes ...
-    function toggleDropdown(button) {
-      const dropdown = button.nextElementSibling;
-      dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-    }
-  
-    // Fecha dropdown se clicar fora
-    window.addEventListener("click", function (event) {
-      if (!event.target.matches('.btn-opcoes')) {
-        document.querySelectorAll('.dropdown-menu').forEach(menu => {
-          menu.style.display = 'none';
-        });
-      }
-    });
-  </script>
+
+  <!-- Modal de confirmação de demissão -->
+  <div class="modal fade" id="modalConfirmarDemissao" tabindex="-1" aria-labelledby="confirmarDemissaoLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content rounded-3 shadow">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmarDemissaoLabel">Confirmar demissão</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          Tem certeza que deseja demitir este funcionário?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" id="btnConfirmarDemissao" class="btn btn-danger">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
+    <div id="toastSucesso" class="toast align-items-center text-bg-success border-0 shadow-lg" role="alert"
+      aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body fw-semibold">
+          Funcionário atualizado com sucesso!
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+          aria-label="Fechar"></button>
+      </div>
+    </div>
+  </div>
 
 
-<script>
-    document.querySelectorAll('.btn-demitir').forEach((botao, index) => {
-      botao.addEventListener('click', function () {
-        const linha = botao.closest('tr');
-        linha.children[0].textContent = 'Desligado';
-        linha.children[1].textContent = '—';
-        linha.children[5].textContent = new Date().toLocaleDateString(); 
-      });
-    });
-  </script>
-  -->
+  <!-- Modal Solicitação de Contratação -->
+  <div class="modal fade" id="modalContratacao" tabindex="-1" aria-labelledby="modalContratacaoLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+      <form id="formContratacao" class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalContratacaoLabel">Solicitação de Contratação</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="funcionarioIdContratacao" name="funcionario_id" />
+          <p id="nomeFuncionarioContratacao" class="fw-bold mb-3 text-primary"></p>
+          <div class="mb-3">
+            <label for="observacoesContratacao" class="form-label">Observações</label>
+            <textarea class="form-control" id="observacoesContratacao" name="observacoes" rows="3"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Equipamentos solicitados:</label>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="celular" id="celularContratacao"
+                name="equipamentos" />
+              <label class="form-check-label" for="celularContratacao">Celular</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="notebook" id="notebookContratacao"
+                name="equipamentos" />
+              <label class="form-check-label" for="notebookContratacao">Notebook</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="chip" id="chipContratacao" name="equipamentos" />
+              <label class="form-check-label" for="chipContratacao">Chip</label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Enviar Solicitação</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Solicitação de Substituição -->
+  <div class="modal fade" id="modalSubstituicao" tabindex="-1" aria-labelledby="modalSubstituicaoLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+      <form id="formSubstituicao" class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalSubstituicaoLabel">Solicitação de Substituição</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="funcionarioIdSubstituicao" name="funcionario_id" />
+          <p id="nomeFuncionarioSubstituicao" class="fw-bold mb-3 text-primary"></p>
+          <div class="mb-3">
+            <label for="observacoesSubstituicao" class="form-label">Observações</label>
+            <textarea class="form-control" id="observacoesSubstituicao" name="observacoes" rows="3"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Equipamentos a substituir:</label>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="celular" id="celularSubstituicao"
+                name="equipamentos" />
+              <label class="form-check-label" for="celularSubstituicao">Celular</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="notebook" id="notebookSubstituicao"
+                name="equipamentos" />
+              <label class="form-check-label" for="notebookSubstituicao">Notebook</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="chip" id="chipSubstituicao" name="equipamentos" />
+              <label class="form-check-label" for="chipSubstituicao">Chip</label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Enviar Solicitação</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Equipamentos -->
+  <div class="modal fade" id="modalEquipamentos" tabindex="-1" aria-labelledby="modalEquipamentosLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content shadow">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold" id="modalEquipamentosLabel">Equipamentos de <span
+              id="nomeFuncionarioEquipamentos"></span></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <div id="conteudoEquipamentos">
+            <!-- Aqui o JS vai inserir os dados dos equipamentos -->
+            <div class="text-center">
+              <div class="spinner-border text-primary" role="status" id="loadingEquipamentos">
+                <span class="visually-hidden">Carregando...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/JS-Front/controleFuncionario.js" defer></script>
 </body>
+
 </html>

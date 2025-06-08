@@ -1,0 +1,81 @@
+-- 1. Tabela de funcionarios
+CREATE TABLE .public funcionarios (atualizada)(
+  id SERIAL PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  cargo VARCHAR(50) NOT NULL,
+  loja VARCHAR(50) NOT NULL,
+  observacoes TEXT,
+  foto TEXT,
+  foto_cpf TEXT,
+  data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 2. Tabela de Usuarios
+CREATE TABLE usuarios (atualizada)(
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    cargo VARCHAR(50) NOT NULL,
+    nome_usuario VARCHAR(50) UNIQUE NOT NULL,
+    senha VARCHAR(255) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+-- 2. Tabela de solicitações
+CREATE TABLE solicitacoes (
+    id SERIAL PRIMARY KEY,
+    funcionario_id INTEGER REFERENCES funcionarios(id),
+    tipo VARCHAR(20) CHECK (tipo IN ('contratacao', 'substituicao')),
+    observacoes TEXT,
+    status VARCHAR(20) DEFAULT 'pendente',
+    aprovado_gerente BOOLEAN DEFAULT FALSE,
+    aprovado_por_gerente VARCHAR(100),
+    aprovado_financeiro BOOLEAN DEFAULT FALSE,
+    aprovado_por_financeiro VARCHAR(100),
+    data_solicitacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+ALTER TABLE solicitacoes ADD COLUMN criada_por_id INTEGER REFERENCES usuarios(id);
+
+
+
+CREATE TABLE itens_solicitados (
+    id SERIAL PRIMARY KEY,
+    solicitacao_id INTEGER REFERENCES solicitacoes(id),
+    tipo VARCHAR(20) CHECK (tipo IN ('celular', 'notebook', 'chip')),
+    status VARCHAR(20) DEFAULT 'pendente',
+    preenchido_por VARCHAR(100),
+    data_preenchimento TIMESTAMP
+);
+
+
+
+CREATE TABLE celulares (
+    id SERIAL PRIMARY KEY,
+    item_solicitado_id INTEGER REFERENCES itens_solicitados(id),
+    modelo VARCHAR(100),
+    imei VARCHAR(30),
+    numero VARCHAR(20),
+    operadora VARCHAR(50)
+);
+ALTER TABLE celulares
+ADD COLUMN preco NUMERIC(10, 2);
+
+
+CREATE TABLE chips (
+    id SERIAL PRIMARY KEY,
+    item_solicitado_id INTEGER REFERENCES itens_solicitados(id),
+    numero VARCHAR(20),
+    operadora VARCHAR(50),
+    plano VARCHAR(100)
+);
+
+CREATE TABLE notebooks (
+    id SERIAL PRIMARY KEY,
+    item_solicitado_id INTEGER REFERENCES itens_solicitados(id),
+    modelo VARCHAR(100),
+    numero_patrimonio VARCHAR(50),
+    sistema_operacional VARCHAR(100)
+);
+ALTER TABLE notebooks
+ADD COLUMN preco NUMERIC(10, 2);

@@ -1,234 +1,251 @@
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+}
+
+.content {
+  flex-grow: 1;
+  padding: 30px;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.tabela-container {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+th,
+td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 400;
+}
+
+th {
+  background-color: #007bff;
+  color: white;
+}
+
+.checkbox {
+  padding: -25px;
+  transform: scale(1.2);
+}
+
+.btn-aprovar {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.btn-recusar {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.obs-icon {
+  cursor: pointer;
+}
+
+.obs-icon:hover {
+  color: #007bff;
+}
+
+
+
+
+.btn-finalizar {
+  padding: 10px 20px;
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: #000;
+  background-color: #fff;
+  border: none;
+  border-radius: 25px;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease 0s;
+  cursor: pointer;
+  outline: none;
+}
+
+.btn-finalizar:hover {
+  background-color: #007bff;
+  box-shadow: 0px 15px 20px rgba#0044ff;
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.btn-finalizar:active {
+  transform: translateY(-1px);
+}
+
+.container-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.h3-modal {
+  font-size: 20px;
+  margin-bottom: 15px;
+  color: #333;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.erros-validacao {
+  font-size: 14px;
+  color: #e74c3c;
+  margin-top: 10px;
+  text-align: left;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Botões */
+#btn-confirmar-finalizacao,
+#btn-cancelar-finalizacao {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 15px;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+#btn-confirmar-finalizacao {
+  background-color: #2ecc71;
+  color: white;
+}
+
+#btn-confirmar-finalizacao:hover {
+  background-color: #27ae60;
+}
+
+#btn-cancelar-finalizacao {
+  background-color: #e74c3c;
+  color: white;
+  margin-left: 10px;
+}
+
+#btn-cancelar-finalizacao:hover {
+  background-color: #c0392b;
+}
+
+/* Animações */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
   }
 
-  body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    margin: 0;
-    padding: 0;
-    display: flex;
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
   }
 
-  .content {
-    flex-grow: 1;
-    padding: 30px;
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.card {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  border: none;
+  border-left: 5px solid #0d6efd;
+}
+
+.card-title {
+  color: #0d6efd;
+  font-size: 1.25rem;
+}
+
+.btn-sm {
+  min-width: 120px;
+}
+
+.titulo {
+  padding-bottom: 0.5rem;
+  margin: 0;
+}
+
+
+.linha-horizontal{
+  border-bottom: 2px solid #0d6efd;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.modal-header.bg-warning {
+  background-color: #ffc107 !important;
+  color: #212529;
+}
+
+
+main.conteudoSolicitacoes {
+  margin-left: 220px;
+  padding: 20px;
+}
+
+@media (max-width: 768px) {
+  main.conteudoSolicitacoes {
+    margin-left: 0;
   }
 
-  h1 {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-
-  .tabela-container {
-    overflow-x: auto;
-  }
-
-  table {
+  aside.sidebar {
+    position: static !important;
     width: 100%;
-    border-collapse: collapse;
-    background-color: #fff;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
   }
+}
 
-  th, td {
-    padding: 10px;
-    border: 1px solid #ddd;
-    text-align: center;
-    font-size: 15px;
-    font-weight: 400;
-  }
+.modal-dialog {
+  margin: 1.75rem auto;
+  left: 0 !important;
+  right: 0 !important;
+}
 
-  th {
-    background-color: #007bff;
-    color: white;
-  }
+.sidebar {
+  width: 240px;
+  flex: 0 0 180px;
+}
 
-  .checkbox {
-    padding: -25px;
-    transform: scale(1.2);
-  }
+.conteudoSolicitacoes {
+  width: 100%;
+}
 
-  .btn-aprovar {
-    background-color: #28a745;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    cursor: pointer;
-    border-radius: 5px;
-  }
-
-  .btn-recusar {
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    cursor: pointer;
-    border-radius: 5px;
-  }
-
-  .obs-icon {
-    cursor: pointer;
-  }
-
-  .obs-icon:hover {
-    color: #007bff;
-  }
-
-  /*td input[type="text"] {
-    width: 100%;
-    padding: 5px;
-    font-size: 13px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }*/
-
-  /* From Uiverse.io by Maximinodotpy */ 
-.inputGroup {
-    font-family: 'Segoe UI', sans-serif;
-    margin: 1em 0 1em 0;
-    max-width: 190px;
-    position: relative;
-  }
-  
-  .inputGroup input {
-    font-size: 100%;
-    padding: 0.8em;
-    outline: none;
-    border: 2px solid rgb(200, 200, 200);
-    background-color: transparent;
-    border-radius: 20px;
-    width: 100%;
-  }
-  
-  .inputGroup label {
-    font-size: 100%;
-    position: absolute;
-    left: 0;
-    padding: 0.8em;
-    margin-left: 0.5em;
-    pointer-events: none;
-    transition: all 0.3s ease;
-    color: rgb(100, 100, 100);
-  }
-  
-  .inputGroup :is(input:focus, input:valid)~label {
-    transform: translateY(-50%) scale(.9);
-    margin: 0em;
-    margin-left: 1.3em;
-    padding: 0.4em;
-    background-color: #e8e8e8;
-  }
-  
-  .inputGroup :is(input:focus, input:valid) {
-    border-color: rgb(150, 150, 200);
-  }
-
-
-  .btn-finalizar {
-    padding: 10px 20px;
-    font-size: 12px;
-    letter-spacing: 2px;
-    color: #000;
-    background-color: #fff;
-    border: none;
-    border-radius: 25px;
-    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease 0s;
-    cursor: pointer;
-    outline: none;
-  }
-  
-  .btn-finalizar:hover {
-    background-color: #007bff;
-    box-shadow: 0px 15px 20px rgba#0044ff;
-    color: #fff;
-    transform: translateY(-2px);
-  }
-  
-  .btn-finalizar:active {
-    transform: translateY(-1px);
-  }
-
-  .container-modal {
-    display: none; /* começa oculto */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.6);
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    animation: fadeIn 0.3s ease forwards;
-  }
-  
-  .modal {
-    background: #fff;
-    padding: 25px 30px;
-    border-radius: 12px;
-    width: 320px;
-    position: relative;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    animation: slideUp 0.3s ease forwards;
-    text-align: center;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  }
-  
-  .h3-modal {
-    font-size: 20px;
-    margin-bottom: 15px;
-    color: #333;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  }
-  
-  .erros-validacao {
-    font-size: 14px;
-    color: #e74c3c;
-    margin-top: 10px;
-    text-align: left;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  }
-  
-  /* Botões */
-  #btn-confirmar-finalizacao,
-  #btn-cancelar-finalizacao {
-    padding: 10px 18px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    margin-top: 15px;
-    font-weight: bold;
-    transition: background 0.3s;
-  }
-  
-  #btn-confirmar-finalizacao {
-    background-color: #2ecc71;
-    color: white;
-  }
-  
-  #btn-confirmar-finalizacao:hover {
-    background-color: #27ae60;
-  }
-  
-  #btn-cancelar-finalizacao {
-    background-color: #e74c3c;
-    color: white;
-    margin-left: 10px;
-  }
-  
-  #btn-cancelar-finalizacao:hover {
-    background-color: #c0392b;
-  }
-  
-  /* Animações */
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  
-  @keyframes slideUp {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-  }
