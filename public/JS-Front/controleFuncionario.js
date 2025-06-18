@@ -21,7 +21,7 @@ window.addEventListener('click', (e) => {
   }
 });
 
-// Toast feedback usando Bootstrap 5
+
 function mostrarToast(mensagem) {
   const toastEl = document.getElementById('toastSucesso');
   if (toastEl) {
@@ -32,311 +32,6 @@ function mostrarToast(mensagem) {
     console.warn("Toast de sucesso não encontrado no DOM.");
   }
 }
-
-
-// Modal edição funcionário | Abrir Modal
-async function abrirModal(func) {
-  let idFuncionario = func.id;
-  try {
-    // Busca dados atualizados do funcionário no backend
-    const resposta = await fetch(`http://localhost:3000/api/funcionarios/${idFuncionario}`);
-    if (!resposta.ok) throw new Error('Erro ao buscar dados do funcionário');
-
-    const func = await resposta.json();
-
-    const modalElement = document.getElementById('modalEdicao');
-    const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('modalEdicao'));
-    modal.show();
-
-    document.getElementById('editId').value = func.id || '';
-    document.getElementById('editNome').value = func.nome || '';
-    document.getElementById('editCargo').value = func.cargo || '';
-    document.getElementById('editLoja').value = func.loja || '';
-    document.getElementById('editCPF').value = func.cpf || '';
-    document.getElementById('editObservacoes').value = func.observacoes || '';
-    document.getElementById('editStatus').value = func.status || '';
-    document.getElementById('previewFotoFunc').src = func.foto_funcionario ? `/uploads/${func.foto_funcionario}` : '/uploads/padrao.png';
-    document.getElementById('previewFotoCPF').src = func.foto_cpf ? `/uploads/${func.foto_cpf}` : 'caminho/para/imagem-padrao.png';
-
-    // Atualiza o botão de demissão com o ID do funcionário ??????????????????????????????????
-    const btnDemitir = document.getElementById('btnAbrirModalDemissao');
-    if (btnDemitir) {
-      btnDemitir.onclick = () => abrirModalDemissao(func.id);
-    } else {
-      console.warn("Botão de demissão não encontrado no DOM.");
-    }
-  } catch (erro) {
-    console.error(erro);
-    alert('Erro ao carregar dados do funcionário');
-  }
-}
-
-// Envio do formulário de edição (modal)
-const formEditar = document.getElementById('form-edicao');
-formEditar.addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const btnSalvar = formEditar.querySelector('button[type="submit"]');
-  btnSalvar.disabled = true;
-  btnSalvar.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Salvando...`;
-
-  const formData = new FormData(formEditar);
-  const id = formData.get('id');
-
-  try {
-    const resposta = await fetch(`http://localhost:3000/api/funcionarios/editar/${id}`, {
-      method: 'PUT',
-      body: formData
-    });
-
-    if (resposta.ok) {
-      const dadosAtualizados = await resposta.json();
-      mostrarToast('Funcionário atualizado com sucesso!');
-
-      // Atualiza linha da tabela sem reload
-      const linha = document.querySelector(`tr[data-id='${id}']`);
-      if (linha) {
-        linha.children[0].textContent = dadosAtualizados.nome;
-        linha.children[1].textContent = dadosAtualizados.cargo;
-        linha.children[2].textContent = dadosAtualizados.cpf;
-        linha.children[3].textContent = dadosAtualizados.loja;
-        linha.children[4].textContent = dadosAtualizados.observacoes;
-        linha.children[6].textContent = dadosAtualizados.status;
-        const img = linha.querySelector('img');
-        if (img && dadosAtualizados.foto_funcionario) {
-          img.src = `/uploads/${dadosAtualizados.foto_funcionario}`;
-        }
-
-      }
-
-      // Fecha modal
-      const modal = bootstrap.Modal.getInstance(document.getElementById('modalEdicao'));
-      modal.hide();
-    } else {
-      mostrarToast('Erro ao atualizar funcionário.', 'danger');
-    }
-  } catch (erro) {
-    console.error('Erro ao atualizar:', erro);
-    mostrarToast('Erro inesperado ao salvar.', 'danger');
-  } finally {
-    btnSalvar.disabled = false;
-    btnSalvar.textContent = 'Salvar Alterações';
-  }
-});
-
-const modalEdicao = document.getElementById('modalEdicao');
-modalEdicao.addEventListener('hidden.bs.modal', () => {
-  // limpa os inputs de imagem (evita imagens presas)
-  document.getElementById('editFotoFunc').value = '';
-  document.getElementById('editFotoCPF').value = '';
-});
-// Preview da nova foto do FUNCIONÁRIO
-document.getElementById('editFotoFunc').addEventListener('change', (e) => {
-  const arquivo = e.target.files[0];
-  if (arquivo) {
-    const preview = document.getElementById('previewFotoFunc');
-    preview.src = URL.createObjectURL(arquivo);
-  }
-});
-
-// Preview da nova foto do CPF
-document.getElementById('editFotoCPF').addEventListener('change', (e) => {
-  const arquivo = e.target.files[0];
-  if (arquivo) {
-    const preview = document.getElementById('previewFotoCPF');
-    preview.src = URL.createObjectURL(arquivo);
-  }
-});
-
-
-
-
-
-
-// Abrir modal de confirmação de Demissao
-
-let idFuncionarioParaDemitir = null;
-
-// Abrir modal de confirmação de Demissão
-function abrirModalDemissao(idFuncionario) {
-  idFuncionarioParaDemitir = idFuncionario;
-  console.log("id do funcionario pra demitir é:" + idFuncionario);
-  const modal = new bootstrap.Modal(document.getElementById('modalConfirmarDemissao'));
-  modal.show();
-}
-
-// Confirmar Demissão (botão do modal)
-document.getElementById('btnConfirmarDemissao').addEventListener('click', async () => {
-  if (!idFuncionarioParaDemitir) return;
-
-  try {
-    // Chama o endpoint para demitir o funcionário (PUT)
-    const resposta = await fetch(`http://localhost:3000/api/funcionarios/demitir/${idFuncionarioParaDemitir}`, {
-      method: 'PUT'
-    });
-
-    if (resposta.ok) {
-      mostrarToast('Funcionário desligado com sucesso!', 'success');
-
-      // Atualiza visualmente o status e estilização da linha na tabela
-      const linha = document.querySelector(`tr[data-id='${idFuncionarioParaDemitir}']`);
-      if (linha) {
-        const statusCelula = linha.querySelector('td:nth-child(7)');
-        if (statusCelula) statusCelula.textContent = 'Desligado';
-        linha.classList.add('linha-desligado');
-      }
-
-      // Fecha o modal
-      const modal = bootstrap.Modal.getInstance(document.getElementById('modalConfirmarDemissao'));
-      modal.hide();
-
-      idFuncionarioParaDemitir = null;
-    } else {
-      mostrarToast('Erro ao desligar o funcionário.', 'danger');
-    }
-  } catch (erro) {
-    console.error('Erro ao desligar:', erro);
-    mostrarToast('Erro inesperado ao desligar funcionário.', 'danger');
-  }
-});
-
-
-
-// Função para abrir modal de Solicitação contratação
-const modalContratacao = new bootstrap.Modal(document.getElementById('modalContratacao'));
-
-function abrirSolicitacaoNovoFuncionario(funcionarioId, nomeFuncionario) {
-  const form = document.getElementById('formContratacao');
-  form.reset();
-  document.getElementById('nomeFuncionarioContratacao').textContent = `Funcionário: ${nomeFuncionario}`;
-  document.getElementById('funcionarioIdContratacao').value = funcionarioId;
-  modalContratacao.show();
-}
-//Logica pra solicitação de novo funcionario
-document.getElementById('formContratacao').addEventListener('submit', async function (e) {
-  e.preventDefault();
-
-  const funcionarioId = document.getElementById('funcionarioIdContratacao').value;
-  const observacoes = document.getElementById('observacoesContratacao').value;
-  const usuarioId = localStorage.getItem('usuarioId');
-
-  const equipamentosSelecionados = [];
-  if (document.getElementById('celularContratacao').checked) equipamentosSelecionados.push('celular');
-  if (document.getElementById('notebookContratacao').checked) equipamentosSelecionados.push('notebook');
-  if (document.getElementById('chipContratacao').checked) equipamentosSelecionados.push('chip');
-
-  try {
-    console.log("usuarioId que abriu solicitação: ",usuarioId)
-    const resposta = await fetch('http://localhost:3000/api/solicitacoes', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        funcionario_id: funcionarioId,
-        tipo: 'contratacao',
-        criado_por: usuarioId,
-        observacoes,
-        equipamentos: equipamentosSelecionados
-      })
-    });
-
-    if (!resposta.ok) throw new Error('Erro ao criar solicitação');
-
-    const resultado = await resposta.json();
-    alert('Solicitação enviada com sucesso!');
-    modalContratacao.hide();
-
-  } catch (erro) {
-    console.error(erro);
-    alert('Erro ao enviar solicitação.');
-  }
-});
-
-
-
-// Função para abrir modal de substituição
-const modalSubstituicao = new bootstrap.Modal(document.getElementById('modalSubstituicao'));
-
-function abrirSolicitacaoTroca(funcionarioId, nomeFuncionario) {
-  const form = document.getElementById('formSubstituicao');
-  form.reset();
-  document.getElementById('nomeFuncionarioSubstituicao').textContent = `Funcionário: ${nomeFuncionario}`;
-  document.getElementById('funcionarioIdSubstituicao').value = funcionarioId;
-  modalSubstituicao.show();
-}
-//Logica pra solicitação de troca
-document.getElementById('formSubstituicao').addEventListener('submit', async (event) => {
-  event.preventDefault();
-
-  const funcionarioId = document.getElementById('funcionarioIdSubstituicao').value;
-  const observacoes = document.getElementById('observacoesSubstituicao').value;
-  const usuarioId = localStorage.getItem('usuarioId');
-  const equipamentosSelecionados = [];
-
-  if (document.getElementById('celularSubstituicao').checked) equipamentosSelecionados.push('celular');
-  if (document.getElementById('notebookSubstituicao').checked) equipamentosSelecionados.push('notebook');
-  if (document.getElementById('chipSubstituicao').checked) equipamentosSelecionados.push('chip');
-
-  try {
-    console.log("usuarioId que abriu solicitação: ",usuarioId)
-    // Envia primeiro para a tabela `solicitacoes`
-    const resposta = await fetch('http://localhost:3000/api/solicitacoes', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        funcionario_id: funcionarioId,
-        tipo: 'substituicao',
-        criado_por: usuarioId,
-        observacoes,
-        equipamentos: equipamentosSelecionados
-      })
-    });
-
-    if (!resposta.ok) throw new Error('Erro ao criar solicitação');
-
-    // Fecha o modal e dá feedback
-    modalSubstituicao.hide();
-    alert('Solicitação enviada com sucesso!');
-  } catch (erro) {
-    console.error(erro);
-    alert('Erro ao enviar solicitação.');
-  }
-});
-
-
-// // Demitir funcionário 
-// async function demitirFuncionario(id, linha) {
-//   try {
-//     const resposta = await fetch(`http://localhost:3000/api/funcionarios/demitir/${id}`, {
-//       method: 'PUT'
-//     });
-
-//     if (resposta.ok) {
-//       // Atualiza o status na célula da tabela
-//       const statusCelula = linha.querySelector('td:nth-child(7)');
-//       if (statusCelula) statusCelula.textContent = 'Desligado';
-
-//       // Estiliza visualmente a linha como "desligado"
-//       linha.classList.add('linha-desligado');
-
-//       mostrarToast('Funcionário desligado com sucesso!', 'success');
-//     } else {
-//       mostrarToast('Erro ao desligar o funcionário.', 'danger');
-//     }
-//   } catch (erro) {
-//     console.error('Erro ao desligar:', erro);
-//     mostrarToast('Erro inesperado ao desligar funcionário.', 'danger');
-//   }
-// }
-
-
-
-
-
-
-
-
-
-
 
 
 // Carregar tabela de funcionários
@@ -350,21 +45,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     dados.forEach(func => {
       const linha = document.createElement('tr');
+      console.log('Status do funcionário ', func.nome, ':', func.status);
       linha.setAttribute('data-id', func.id);
-      console.log("entrou no try do DOM");
+      // console.log("entrou no try do DOM");
 
-      // Verifica permissões com base no usuário logado
+      //permissões com base no usuário logado
       const podeEditar = temPermissao(['RH', 'Gerente']);
       const podeSolicitarTroca = temPermissao(['RH', 'Gerente']);
       const podeSolicitarNovo = temPermissao(['RH', 'Gerente']);
       const podeExcluir = temPermissao(['RH', 'Gerente']);
 
-      // Monta o HTML do menu dinamicamente com base nas permissões
+      // monta o HTML do menu com base nas permissões
       const opcoesMenu = `
         ${podeEditar ? '<button class="dropdown-item btn-editar">Editar</button>' : ''}
         <a class="dropdown-item" href="#" onclick="abrirModalEquipamentos(${func.id}, '${func.nome}')">Equipamentos</a>
-        ${podeSolicitarTroca ? `<a class="dropdown-item" href="#" onclick="abrirSolicitacaoTroca(${func.id}, '${func.nome}')">Solicitação de Troca</a>` : ''}
-        ${podeSolicitarNovo ? `<a class="dropdown-item" href="#" onclick="abrirSolicitacaoNovoFuncionario(${func.id}, '${func.nome}')">Solicitação Novo Funcionário</a>` : ''}
+        ${podeSolicitarTroca ? `<a class="dropdown-item" href="#" onclick="abrirSolicitacaoTroca(${func.id}, '${func.nome}', '${func.status || 'ativo'}')">Solicitação de Troca</a>` : ''}
+        ${podeSolicitarNovo ? `<a class="dropdown-item" href="#" onclick="abrirSolicitacaoNovoFuncionario(${func.id}, '${func.nome}', '${func.status || 'ativo'}')">Solicitação Novo Funcionário</a>` : ''}
         ${podeExcluir ? '<button class="dropdown-item btn-excluir text-danger">Excluir Funcionário</button>' : ''}
       `;
 
@@ -378,7 +74,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         <td>${func.modelo_chip || '-'}</td>
         <td>${func.observacoes || '-'}</td>
         <td><img src="/uploads/${func.foto}" alt="Foto" height="40"></td>
-        <td>${func.status || 'ativo'}</td>
+        <td>${func.status ? func.status : 'ativo'}</td>
+        
         <td>
           <div class="menu-container position-relative">
             <button class="btn-opcoes btn btn-sm btn-secondary" type="button" onclick="toggleDropdown(this)">⋯</button>
@@ -416,12 +113,343 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
+
+
+
+
+
+
+
+// Modal edição funcionário | Abrir Modal
+async function abrirModal(func) {
+  let idFuncionario = func.id;
+  try {
+    // Busca dados atualizados do funcionário no backend
+    const resposta = await fetch(`http://localhost:3000/api/funcionarios/${idFuncionario}`);
+    if (!resposta.ok) throw new Error('Erro ao buscar dados do funcionário');
+
+    const func = await resposta.json();
+
+    const modalElement = document.getElementById('modalEdicao');
+    const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('modalEdicao'));
+    modal.show();
+
+    document.getElementById('editId').value = func.id || '';
+    document.getElementById('editNome').value = func.nome || '';
+    document.getElementById('editCargo').value = func.cargo || '';
+    document.getElementById('editLoja').value = func.loja || '';
+    document.getElementById('editCPF').value = func.cpf || '';
+    document.getElementById('editObservacoes').value = func.observacoes || '';
+    document.getElementById('editStatus').value = func.status || '';
+    document.getElementById('previewFotoFunc').src = func.foto_funcionario ? `/uploads/${func.foto_funcionario}` : '/uploads/padrao.png';
+    document.getElementById('previewFotoCPF').src = func.foto_cpf ? `/uploads/${func.foto_cpf}` : 'caminho/para/imagem-padrao.png';
+
+    // Botão para Demitir
+    const btnDemitir = document.getElementById('btnAbrirModalDemissao');
+    if (btnDemitir) {
+      btnDemitir.onclick = () => {
+        if (!temPermissao(['RH', 'Gerente'])) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Acesso negado',
+            text: 'Você não tem permissão para demitir funcionários.',
+            confirmButtonColor: '#4F46E5'
+          });
+          return;
+        }
+        abrirModalDemissao(func.id);
+      };
+    } else {
+      console.warn("Botão de demissão não encontrado no DOM.");
+    }
+  } catch (erro) {
+    console.error(erro);
+    alert('Erro ao carregar dados do funcionário');
+  }
+}
+
+// Envio do formulário de edição (modal)
+const formEditar = document.getElementById('form-edicao');
+formEditar.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const btnSalvar = formEditar.querySelector('button[type="submit"]');
+  btnSalvar.disabled = true;
+  btnSalvar.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Salvando...`;
+
+  const formData = new FormData(formEditar);
+  const id = formData.get('id');
+
+  try {
+    const resposta = await fetch(`http://localhost:3000/api/funcionarios/editar/${id}`, {
+      method: 'PUT',
+      body: formData
+    });
+
+    if (resposta.ok) {
+      const dadosAtualizados = await resposta.json();
+      mostrarToast('Funcionário atualizado com sucesso!');
+
+      // Atualiza linha da tabela
+      const linha = document.querySelector(`tr[data-id='${id}']`);
+      if (linha) {
+        linha.children[0].textContent = dadosAtualizados.nome;
+        linha.children[1].textContent = dadosAtualizados.cargo;
+        linha.children[2].textContent = dadosAtualizados.cpf;
+        linha.children[3].textContent = dadosAtualizados.loja;
+        linha.children[4].textContent = dadosAtualizados.observacoes;
+        linha.children[9].textContent = dadosAtualizados.status;
+        const img = linha.querySelector('img');
+        if (img && dadosAtualizados.foto_funcionario) {
+          img.src = `/uploads/${dadosAtualizados.foto_funcionario}`;
+        }
+
+      }
+
+    
+      const modal = bootstrap.Modal.getInstance(document.getElementById('modalEdicao'));
+      modal.hide();
+    } else {
+      mostrarToast('Erro ao atualizar funcionário.', 'danger');
+    }
+  } catch (erro) {
+    console.error('Erro ao atualizar:', erro);
+    mostrarToast('Erro inesperado ao salvar.', 'danger');
+  } finally {
+    btnSalvar.disabled = false;
+    btnSalvar.textContent = 'Salvar Alterações';
+  }
+});
+
+const modalEdicao = document.getElementById('modalEdicao');
+modalEdicao.addEventListener('hidden.bs.modal', () => {
+  // limpa os inputs de imagem (evita imagens presas)
+  document.getElementById('editFotoFunc').value = '';
+  document.getElementById('editFotoCPF').value = '';
+});
+
+// Preview da nova foto do FUNCIONÁRIO
+document.getElementById('editFotoFunc').addEventListener('change', (e) => {
+  const arquivo = e.target.files[0];
+  if (arquivo) {
+    const preview = document.getElementById('previewFotoFunc');
+    preview.src = URL.createObjectURL(arquivo);
+  }
+});
+
+// Preview da nova foto do CPF
+document.getElementById('editFotoCPF').addEventListener('change', (e) => {
+  const arquivo = e.target.files[0];
+  if (arquivo) {
+    const preview = document.getElementById('previewFotoCPF');
+    preview.src = URL.createObjectURL(arquivo);
+  }
+});
+
+
+
+
+
+
+// Abrir modal de confirmação de Demissao
+let idFuncionarioParaDemitir = null;
+function abrirModalDemissao(idFuncionario) {
+  idFuncionarioParaDemitir = idFuncionario;
+  console.log("id do funcionario pra demitir é:" + idFuncionario);
+  const modal = new bootstrap.Modal(document.getElementById('modalConfirmarDemissao'));
+  modal.show();
+}
+
+// Confirmar Demissão (botão do modal)
+document.getElementById('btnConfirmarDemissao').addEventListener('click', async () => {
+  if (!idFuncionarioParaDemitir) return;
+
+  try {
+    const resposta = await fetch(`http://localhost:3000/api/funcionarios/demitir/${idFuncionarioParaDemitir}`, {
+      method: 'PUT'
+    });
+
+    if (resposta.ok) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Funcionário desligado!',
+        text: 'O funcionário foi desligado com sucesso.',
+        confirmButtonColor: '#4F46E5'
+      }).then(() => {
+        location.reload();
+      });
+
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro!',
+        text: 'Erro ao desligar o funcionário.',
+        confirmButtonColor: '#4F46E5'
+      });
+    }
+  } catch (erro) {
+    console.error('Erro ao desligar:', erro);
+    Swal.fire({
+      icon: 'error',
+      title: 'Erro inesperado!',
+      text: 'Ocorreu um erro ao tentar desligar o funcionário.',
+      confirmButtonColor: '#4F46E5'
+    });
+  }
+});
+
+
+
+
+// Função para abrir modal de Solicitação contratação
+const modalContratacao = new bootstrap.Modal(document.getElementById('modalContratacao'));
+
+function abrirSolicitacaoNovoFuncionario(funcionarioId, nomeFuncionario, statusFuncionario) {
+  if (statusFuncionario.toLowerCase() === 'desligado') {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Funcionário desligado',
+      text: 'Não é possível solicitar equipamentos para um funcionário desligado.',
+      confirmButtonColor: '#d33'
+    });
+    return;
+  }
+
+  const form = document.getElementById('formContratacao');
+  form.reset();
+  document.getElementById('nomeFuncionarioContratacao').textContent = `Funcionário: ${nomeFuncionario}`;
+  document.getElementById('funcionarioIdContratacao').value = funcionarioId;
+  modalContratacao.show();
+}
+//logica pra solicitação de novo funcionario
+document.getElementById('formContratacao').addEventListener('submit', async function (e) {
+  e.preventDefault();
+
+  const funcionarioId = document.getElementById('funcionarioIdContratacao').value;
+  const observacoes = document.getElementById('observacoesContratacao').value;
+  const usuarioId = localStorage.getItem('usuarioId');
+
+  const equipamentosSelecionados = [];
+  if (document.getElementById('celularContratacao').checked) equipamentosSelecionados.push('celular');
+  if (document.getElementById('notebookContratacao').checked) equipamentosSelecionados.push('notebook');
+  if (document.getElementById('chipContratacao').checked) equipamentosSelecionados.push('chip');
+
+  try {
+    console.log("usuarioId que abriu solicitação: ", usuarioId)
+    const resposta = await fetch('http://localhost:3000/api/solicitacoes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        funcionario_id: funcionarioId,
+        tipo: 'contratacao',
+        criado_por: usuarioId,
+        observacoes,
+        equipamentos: equipamentosSelecionados
+      })
+    });
+
+    if (!resposta.ok) throw new Error('Erro ao criar solicitação');
+
+    const resultado = await resposta.json();
+    Swal.fire({
+      icon: 'success', title: 'Sucesso!', text: 'Solicitação enviada com sucesso!', confirmButtonColor: '#3085d6'
+    });
+    modalContratacao.hide();
+
+  } catch (erro) {
+    console.error(erro);
+    Swal.fire({
+      icon: 'error', title: 'Erro!', text: 'Erro ao enviar solicitação.', confirmButtonColor: '#d33'
+    });
+  }
+});
+
+
+
+// Função para abrir modal de substituição
+const modalSubstituicao = new bootstrap.Modal(document.getElementById('modalSubstituicao'));
+function abrirSolicitacaoTroca(funcionarioId, nomeFuncionario, statusFuncionario) {
+  if (statusFuncionario.toLowerCase() === 'desligado') {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Funcionário desligado',
+      text: 'Não é possível solicitar troca de equipamentos para um funcionário desligado.',
+      confirmButtonColor: '#d33'
+    });
+    return;
+  }
+
+  const form = document.getElementById('formSubstituicao');
+  form.reset();
+  document.getElementById('nomeFuncionarioSubstituicao').textContent = `Funcionário: ${nomeFuncionario}`;
+  document.getElementById('funcionarioIdSubstituicao').value = funcionarioId;
+  modalSubstituicao.show();
+}
+
+//logica pra solicitação de substituição
+document.getElementById('formSubstituicao').addEventListener('submit', async (event) => {
+  event.preventDefault();
+
+  const funcionarioId = document.getElementById('funcionarioIdSubstituicao').value;
+  const observacoes = document.getElementById('observacoesSubstituicao').value;
+  const usuarioId = localStorage.getItem('usuarioId');
+  const equipamentosSelecionados = [];
+
+  if (document.getElementById('celularSubstituicao').checked) equipamentosSelecionados.push('celular');
+  if (document.getElementById('notebookSubstituicao').checked) equipamentosSelecionados.push('notebook');
+  if (document.getElementById('chipSubstituicao').checked) equipamentosSelecionados.push('chip');
+
+  try {
+    console.log("usuarioId que abriu solicitação: ", usuarioId)
+    // Envia primeiro para a tabela `solicitacoes`
+    const resposta = await fetch('http://localhost:3000/api/solicitacoes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        funcionario_id: funcionarioId,
+        tipo: 'substituicao',
+        criado_por: usuarioId,
+        observacoes,
+        equipamentos: equipamentosSelecionados
+      })
+    });
+
+    if (!resposta.ok) throw new Error('Erro ao criar solicitação');
+
+    // Fecha o modal e dá feedback
+    modalSubstituicao.hide();
+    Swal.fire({
+      icon: 'success', title: 'Sucesso!', text: 'Solicitação enviada com sucesso!', confirmButtonColor: '#3085d6'
+    });
+  } catch (erro) {
+    console.error(erro);
+    Swal.fire({
+      icon: 'error', title: 'Erro!', text: 'Erro ao enviar solicitação.', confirmButtonColor: '#d33'
+    });
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function temPermissao(perfisPermitidos) {
   const cargo = localStorage.getItem('usuarioCargo');
   return cargo && perfisPermitidos.includes(cargo);
 }
 
-
+// Modal dos equipamentos que esta com o funcionário
 async function abrirModalEquipamentos(idFuncionario, nomeFuncionario) {
   document.getElementById('nomeFuncionarioEquipamentos').textContent = nomeFuncionario;
 
@@ -496,9 +524,18 @@ async function abrirModalEquipamentos(idFuncionario, nomeFuncionario) {
 async function excluirFuncionario(id) {
   if (!id) return;
 
-  if (!confirm('Tem certeza que deseja excluir este funcionário? Esta ação não poderá ser desfeita.')) {
-    return;
-  }
+  const resultado = await Swal.fire({
+    title: 'Tem certeza?',
+    text: 'Você realmente deseja excluir este funcionário? Esta ação não poderá ser desfeita.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sim, excluir',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6'
+  });
+
+  if (!resultado.isConfirmed) return;
 
   try {
     const resposta = await fetch(`http://localhost:3000/api/funcionarios/${id}`, {
@@ -508,7 +545,6 @@ async function excluirFuncionario(id) {
     if (resposta.ok) {
       mostrarToast('Funcionário excluído com sucesso!', 'success');
 
-      // Remove a linha da tabela correspondente ao ID
       const linha = document.querySelector(`tr[data-id="${id}"]`);
       if (linha) linha.remove();
     } else {
@@ -519,6 +555,7 @@ async function excluirFuncionario(id) {
     mostrarToast('Erro inesperado ao excluir.', 'danger');
   }
 }
+
 
 document.getElementById("pesquisa").addEventListener("input", function () {
   const termo = this.value.toLowerCase();
@@ -532,3 +569,34 @@ document.getElementById("pesquisa").addEventListener("input", function () {
     linha.style.display = corresponde ? "" : "none";
   });
 });
+
+
+
+
+
+
+
+// // Demitir funcionário 
+// async function demitirFuncionario(id, linha) {
+//   try {
+//     const resposta = await fetch(`http://localhost:3000/api/funcionarios/demitir/${id}`, {
+//       method: 'PUT'
+//     });
+
+//     if (resposta.ok) {
+//       // Atualiza o status na célula da tabela
+//       const statusCelula = linha.querySelector('td:nth-child(7)');
+//       if (statusCelula) statusCelula.textContent = 'Desligado';
+
+//       // Estiliza visualmente a linha como "desligado"
+//       linha.classList.add('linha-desligado');
+
+//       mostrarToast('Funcionário desligado com sucesso!', 'success');
+//     } else {
+//       mostrarToast('Erro ao desligar o funcionário.', 'danger');
+//     }
+//   } catch (erro) {
+//     console.error('Erro ao desligar:', erro);
+//     mostrarToast('Erro inesperado ao desligar funcionário.', 'danger');
+//   }
+// }

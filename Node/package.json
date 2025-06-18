@@ -5,5 +5,9 @@
     "multer": "^2.0.0",
     "path": "^0.12.7",
     "pg": "^8.15.6"
+  },
+  "devDependencies": {
+    "cypress": "^14.4.1",
+    "cypress-file-upload": "^5.0.8"
   }
 }

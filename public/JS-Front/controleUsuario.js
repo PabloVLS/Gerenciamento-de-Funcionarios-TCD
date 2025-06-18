@@ -1,8 +1,21 @@
 // Abre o dropdown de opções
 function toggleDropdown(button) {
+  if (!temPermissao(['Gerente'])) {
+    Swal.fire({
+      icon: 'warning', title: 'Acesso restrito', text: 'Apenas gerentes podem acessar estas opções.', confirmButtonColor: '#4F46E5'
+    });
+    return;
+  }
+
   const dropdown = button.nextElementSibling;
   dropdown.classList.toggle("show");
 }
+
+function temPermissao(perfisPermitidos) {
+  const cargo = localStorage.getItem('usuarioCargo');
+  return cargo && perfisPermitidos.includes(cargo);
+}
+
 
 // Fecha dropdown ao clicar fora
 window.addEventListener("click", function (event) {
@@ -26,7 +39,7 @@ function abrirModalExcluir(linha, nomeUsuario, idUsuario) {
   modal.show();
 }
 
-// Evento do botão Confirmar exclusão no modal
+// Confirmar exclusão no modal
 document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
   if (!usuarioParaExcluir) return;
 
@@ -36,25 +49,36 @@ document.getElementById('confirmDeleteBtn').addEventListener('click', async () =
     });
 
     if (resposta.ok) {
-      alert('Usuário excluído com sucesso!');
+      await Swal.fire({
+        icon: 'success',
+        title: 'Usuário excluído!',
+        text: 'O usuário foi removido com sucesso.',
+        confirmButtonColor: '#4F46E5'
+      });
+
       usuarioParaExcluir.linha.remove();
     } else {
-      alert('Erro ao excluir usuário.');
+      await Swal.fire({
+        icon: 'error',
+        title: 'Erro ao excluir',
+        text: 'Não foi possível excluir o usuário.',
+        confirmButtonColor: '#DC3545'
+      });
     }
   } catch (erro) {
     console.error('Erro ao excluir:', erro);
     alert('Erro ao tentar excluir.');
   }
 
-  // Fecha o modal depois da ação
+  // fecha o modal depois da ação
   const modalEl = document.getElementById('confirmDeleteModal');
   const modal = bootstrap.Modal.getInstance(modalEl);
   modal.hide();
-  
-  usuarioParaExcluir = null; // limpa o estado
+
+  usuarioParaExcluir = null; 
 });
 
-// Seu código para preencher tabela fica assim, só mudando a parte do botão excluir:
+//código para preencher tabela fica assim
 document.addEventListener('DOMContentLoaded', async () => {
   const tbody = document.querySelector('tbody');
 

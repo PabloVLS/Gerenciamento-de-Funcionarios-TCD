@@ -4,22 +4,46 @@ document.getElementById('form-funcionario').addEventListener('submit', async fun
   const cargoUsuario = localStorage.getItem('usuarioCargo');
 
   if (cargoUsuario !== 'RH' && cargoUsuario !== 'Gerente') {
-    alert('Você não tem permissão para cadastrar funcionários.');
+    Swal.fire({
+      icon: 'error',
+      title: 'Acesso negado',
+      text: 'Você não tem permissão para cadastrar funcionário!'
+    });
     return;
   }
 
-  // Pega os campos de texto/seleção
-  const nome = document.getElementById('nome').value;
-  const cpf = document.getElementById('cpf').value;
+  const nome = document.getElementById('nome').value.trim();
+  const cpf = document.getElementById('cpf').value.trim();
   const cargo = document.getElementById('cargo').value;
   const loja = document.getElementById('loja').value;
   const observacoes = document.getElementById('observacoes').value;
 
-  // Pega os arquivos dos inputs file
+  // Validação do nome
+  if (!nome) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Nome inválido',
+      text: 'O campo nome é obrigatório.'
+    });
+    return;
+  }
+
+  // Validação do CPF
+  const cpfLimpo = cpf.replace(/\D/g, ''); // remove tudo que não for número
+  if (cpfLimpo.length !== 11 || !/^\d{11}$/.test(cpfLimpo)) { //verificação para garantir que os 11 caracteres são números de 0 a 9
+    Swal.fire({
+      icon: 'error',
+      title: 'CPF inválido',
+      text: 'Informe um CPF válido com 11 números.'
+    });
+    return;
+  }
+
+  // Continua pegando os arquivos
   const fotoFile = document.getElementById('foto').files[0];
   const cpfUploadFile = document.getElementById('cpf_upload').files[0];
 
-  // Cria o FormData e adiciona os campos
+  // Cria o FormData
   const formData = new FormData();
   formData.append('nome', nome);
   formData.append('cpf', cpf);
@@ -34,7 +58,6 @@ document.getElementById('form-funcionario').addEventListener('submit', async fun
     formData.append('foto_cpf', cpfUploadFile);
   }
 
-
   try {
     const resposta = await fetch('http://localhost:3000/api/funcionarios', {
       method: 'POST',
@@ -42,47 +65,28 @@ document.getElementById('form-funcionario').addEventListener('submit', async fun
     });
 
     if (resposta.ok) {
-      alert('Funcionário cadastrado com sucesso!');
+      Swal.fire({
+        icon: 'success',
+        title: 'Sucesso!',
+        text: 'Funcionário cadastrado com sucesso!'
+      });
       document.getElementById('form-funcionario').reset();
       document.getElementById('preview-foto').style.display = 'none';
       document.getElementById('preview-cpf').style.display = 'none';
-
     } else {
-      alert('Erro ao cadastrar funcionário. Verifique os dados e tente novamente.');
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro',
+        text: 'Erro ao cadastrar funcionário. Verifique os dados e tente novamente.'
+      });
     }
 
   } catch (erro) {
     console.error('Erro ao enviar requisição:', erro);
-    alert('Erro ao enviar os dados. Tente novamente mais tarde.');
+    Swal.fire({
+      icon: 'error',
+      title: 'Erro',
+      text: 'Erro ao enviar os dados. Tente novamente mais tarde.'
+    });
   }
 });
-
-
-// Pré-visualização da imagem da foto do funcionário
-document.getElementById('foto').addEventListener('change', function (e) {
-  const file = e.target.files[0];
-  const preview = document.getElementById('preview-foto');
-
-  if (file && file.type.startsWith('image/')) {
-    preview.src = URL.createObjectURL(file);
-    preview.style.display = 'block';
-  } else {
-    preview.src = '#';
-    preview.style.display = 'none';
-  }
-});
-
-// Pré-visualização do CPF (se for imagem, não mostra PDF)
-document.getElementById('cpf_upload').addEventListener('change', function (e) {
-  const file = e.target.files[0];
-  const preview = document.getElementById('preview-cpf');
-
-  if (file && file.type.startsWith('image/')) {
-    preview.src = URL.createObjectURL(file);
-    preview.style.display = 'block';
-  } else {
-    preview.src = '#';
-    preview.style.display = 'none';
-  }
-});
-

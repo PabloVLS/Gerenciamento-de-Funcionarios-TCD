@@ -13,7 +13,7 @@ exports.utilitarios = async (req, res) => {
     `);
 
     const demitidos = await pool.query(`
-      SELECT COUNT(*) FROM funcionarios WHERE cargo ILIKE '%demitido%'
+      SELECT COUNT(*) FROM funcionarios WHERE status = 'Desligado'
     `);
 
     const ultimas = await pool.query(`

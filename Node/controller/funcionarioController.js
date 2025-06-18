@@ -74,7 +74,7 @@ exports.listar = async (req, res) => {
         modelo_celular,
         modelo_chip,
         modelo_notebook,
-        status: 'ativo' // por padrão, mas você pode ajustar com base em regra se quiser
+        status: func.status || 'ativo'  
       });
     }
 
@@ -85,12 +85,10 @@ exports.listar = async (req, res) => {
   }
 };
 
-
 exports.excluirFuncionario = async (req, res) => {
   const id = req.params.id;
 
   try {
-    // Verifica se o funcionário existe e está desligado
     const resultado = await pool.query('SELECT status FROM funcionarios WHERE id = $1', [id]);
 
     if (resultado.rows.length === 0) {
@@ -103,11 +101,21 @@ exports.excluirFuncionario = async (req, res) => {
       return res.status(400).json({ mensagem: 'Funcionário precisa estar desligado para ser excluído.' });
     }
 
-    // Exclui o funcionário
+    // Buscar as solicitações desse funcionário
+    const solicitacoes = await pool.query('SELECT id FROM solicitacoes WHERE funcionario_id = $1', [id]);
+
+    // Para cada solicitação, apagar os itens relacionados
+    for (const solicitacao of solicitacoes.rows) {
+      await pool.query('DELETE FROM itens_solicitados WHERE solicitacao_id = $1', [solicitacao.id]);
+    }
+
+    // Apagar as solicitações
+    await pool.query('DELETE FROM solicitacoes WHERE funcionario_id = $1', [id]);
+
+    // Apagar o funcionário
     await pool.query('DELETE FROM funcionarios WHERE id = $1', [id]);
 
     res.status(200).json({ mensagem: 'Funcionário excluído com sucesso.' });
-
   } catch (erro) {
     console.error('Erro ao excluir funcionário:', erro);
     res.status(500).json({ mensagem: 'Erro ao excluir funcionário.' });

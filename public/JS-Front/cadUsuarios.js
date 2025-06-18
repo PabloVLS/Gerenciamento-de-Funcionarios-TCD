@@ -2,7 +2,9 @@ document.querySelector('.form-usuario').addEventListener('submit', async functio
     e.preventDefault(); 
     const cargoUsuario = localStorage.getItem('usuarioCargo');
     if (cargoUsuario !== 'Gerente') {
-      alert('Você não tem permissão para cadastrar usuário !');
+      Swal.fire({
+        icon: 'error',title: 'Acesso negado',text: 'Você não tem permissão para cadastrar usuário!'
+      });
       return;
     }
     const nome = document.getElementById('nome').value;
@@ -13,7 +15,9 @@ document.querySelector('.form-usuario').addEventListener('submit', async functio
     const email = document.getElementById('email').value;
 
     if(senha != confirmarSenha){
-      alert("Senhas não coincidem !");
+      Swal.fire({
+        icon: 'warning',title: 'Senhas diferentes',text: 'As senhas não coincidem!'
+      });
       return;
     }
 
@@ -34,10 +38,14 @@ document.querySelector('.form-usuario').addEventListener('submit', async functio
       });
 
       const resultado = await resposta.json();
-      console.log('Usuário cadastrado:', resultado);
-      alert('Usuário cadastrado com sucesso!');
+      // console.log('Usuário cadastrado:', resultado);
+      Swal.fire({
+        icon: 'success',title: 'Sucesso!',text: 'Usuário cadastrado com sucesso!'
+      });
     } catch (erro) {
       console.error('Erro ao cadastrar:', erro);
-      alert('Erro ao cadastrar funcionário.');
+      Swal.fire({
+        icon: 'error',title: 'Erro',text: 'Erro ao cadastrar usuário.'
+      });
     }
   });

@@ -11,7 +11,6 @@ async function carregarSolicitacoes() {
     console.log(solicitacoes);
 
     listaSolicitacoes.innerHTML = solicitacoes.map(s => {
-      //.log(s);
 
       // Flags de aprovação
       const gerenteAprovou = s.aprovado_gerente === true;
@@ -35,7 +34,7 @@ async function carregarSolicitacoes() {
                         <h6>📱 Celular</h6>
                         <p><strong>Modelo:</strong> ${item.celular.modelo}</p>
                         <p><strong>IMEI:</strong> ${item.celular.imei}</p>
-                        <p><strong>Número:</strong> ${item.celular.numero}</p>
+                        <p><strong>Patrimônio:</strong> ${item.celular.numero}</p>
                       </div>
                     `;
             } else if (item.tipo === 'notebook' && item.notebook) {
@@ -122,7 +121,7 @@ const modalEquipamentos = new bootstrap.Modal(document.getElementById('modalApro
 const camposEquipamentos = document.getElementById('camposEquipamentos');
 let idSolicitacaoAtual = null;
 let itensSolicitadosAtuais = [];
-
+//mostra o modal com os campos dos itens solicitados.
 async function abrirModalPreenchimento(solicitacaoId) {
   idSolicitacaoAtual = solicitacaoId;
 
@@ -173,66 +172,9 @@ async function abrirModalPreenchimento(solicitacaoId) {
   }
 }
 
-// document.getElementById('formEquipamentos').addEventListener('submit', async (e) => {
-//   e.preventDefault();
-
-//   const formData = new FormData(e.target);
-//   const dados = [];
-
-//   itensSolicitadosAtuais.forEach(item => {
-//     if (item.tipo === 'notebook') {
-//       dados.push({
-//         tipo: 'notebook',
-//         item_solicitado_id: item.id,
-//         modelo: formData.get(`modelo_notebook_${item.id}`),
-//         numero_patrimonio: formData.get(`numero_patrimonio_${item.id}`),
-//         sistema_operacional: formData.get(`sistema_operacional_${item.id}`),
-//         valor: formData.get(`valor_notebook_${item.id}`)
-//       });
-//     }
-//     if (item.tipo === 'celular') {
-//       dados.push({
-//         tipo: 'celular',
-//         item_solicitado_id: item.id,
-//         modelo: formData.get(`modelo_celular_${item.id}`),
-//         imei: formData.get(`imei_${item.id}`),
-//         numero: formData.get(`numero_${item.id}`),
-//         operadora: formData.get(`operadora_${item.id}`),
-//         valor: formData.get(`valor_celular_${item.id}`)
-//       });
-//     }
-//     if (item.tipo === 'chip') {
-//       dados.push({
-//         tipo: 'chip',
-//         item_solicitado_id: item.id,
-//         numero: formData.get(`numero_chip_${item.id}`),
-//         operadora: formData.get(`operadora_chip_${item.id}`),
-//         plano: formData.get(`plano_${item.id}`)
-//       });
-//     }
-//   });
-
-//   try {
-//     const resposta = await fetch(`http://localhost:3000/api/solicitacoes/${idSolicitacaoAtual}/aprovar-gerente`, {
-//       method: 'POST',
-//       headers: { 'Content-Type': 'application/json' },
-//       body: JSON.stringify({ equipamentos: dados })
-//     });
-
-//     if (resposta.ok) {
-//       alert('Equipamentos salvos com sucesso!');
-//       modalEquipamentos.hide();
-//       carregarSolicitacoes();
-//     } else {
-//       alert('Erro ao salvar os equipamentos.');
-//     }
-//   } catch (erro) {
-//     console.error(erro);
-//     alert('Erro na comunicação com o servidor.');
-//   }
-// });
 
 
+// preenchimento dos itens pelo Gerente
 document.getElementById('formEquipamentos').addEventListener('submit', async (e) => {
   e.preventDefault();
 
@@ -276,6 +218,7 @@ document.getElementById('formEquipamentos').addEventListener('submit', async (e)
   });
 
   try {
+    // pra cada item preenchido ele salva no banco
     for (const item of dados) {
       const resposta = await fetch(`http://localhost:3000/api/solicitacoes/itens/${item.itemId}`, {
         method: 'PUT',
@@ -312,10 +255,14 @@ document.getElementById('formEquipamentos').addEventListener('submit', async (e)
 
 
 
+
 function temPermissao(permissoes = []) {
   const cargo = localStorage.getItem('usuarioCargo');
   return permissoes.includes(cargo);
 }
+
+
+
 
 async function aprovarGerente(solicitacaoId) {
   if (!temPermissao(['Gerente'])) {
@@ -378,7 +325,7 @@ async function aprovarFinanceiro(solicitacaoId) {
 }
 
 async function finalizarSolicitacao(id) {
-  if (!temPermissao(['Gerente', 'Financeiro'])) {
+  if (!temPermissao(['Gerente'])) {
     await Swal.fire({
       icon: 'error',
       title: 'Acesso negado',
@@ -462,67 +409,67 @@ async function encerrarSolicitacao(id) {
 
 
 
+//NÂO USADO MAIS
+// async function salvarItensPreenchidos() {
+//   const form = document.getElementById('formEquipamentos');
+//   const formData = new FormData(form);
+//   const dados = {};
 
-async function salvarItensPreenchidos() {
-  const form = document.getElementById('formEquipamentos');
-  const formData = new FormData(form);
-  const dados = {};
+//   // Agrupar os dados por ID
+//   for (const [chave, valor] of formData.entries()) {
+//     const match = chave.match(/^(.+)_([0-9]+)$/); // Ex: modelo_notebook_4
+//     if (match) {
+//       const campo = match[1]; // modelo_notebook, numero_chip, etc.
+//       const id = match[2];
 
-  // Agrupar os dados por ID
-  for (const [chave, valor] of formData.entries()) {
-    const match = chave.match(/^(.+)_([0-9]+)$/); // Ex: modelo_notebook_4
-    if (match) {
-      const campo = match[1]; // modelo_notebook, numero_chip, etc.
-      const id = match[2];
+//       if (!dados[id]) dados[id] = {};
+//       dados[id][campo] = valor.trim();
+//     }
+//   }
 
-      if (!dados[id]) dados[id] = {};
-      dados[id][campo] = valor.trim();
-    }
-  }
+//   try {
+//     console.log("Dados agrupados por itemId:", dados);
+//     for (const itemId in dados) {
+//       const campos = dados[itemId];
 
-  try {
-    console.log("Dados agrupados por itemId:", dados);
-    for (const itemId in dados) {
-      const campos = dados[itemId];
+//       let tipo = '';
+//       if (Object.keys(campos).some(c => c.includes('notebook'))) {
+//         tipo = 'notebook';
+//       } else if (Object.keys(campos).some(c => c.includes('celular'))) {
+//         tipo = 'celular';
+//       } else if (Object.keys(campos).some(c => c.includes('chip'))) {
+//         tipo = 'chip';
+//       } else {
+//         console.warn(`Tipo não identificado para o item ${itemId}`);
+//         continue;
+//       }
 
-      let tipo = '';
-      if (Object.keys(campos).some(c => c.includes('notebook'))) {
-        tipo = 'notebook';
-      } else if (Object.keys(campos).some(c => c.includes('celular'))) {
-        tipo = 'celular';
-      } else if (Object.keys(campos).some(c => c.includes('chip'))) {
-        tipo = 'chip';
-      } else {
-        console.warn(`Tipo não identificado para o item ${itemId}`);
-        continue;
-      }
+//       const payload = {
+//         ...campos,
+//         tipo,
+//         preenchido_por: 'Cassio' // ou usuário logado
+//       };
+//       console.log(`Enviando dados para itemId ${itemId}:`, payload);
+//       const resposta = await fetch(`http://localhost:3000/api/solicitacoes/itens/${itemId}`, {
+//         method: 'PUT',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify(payload)
+//       });
 
-      const payload = {
-        ...campos,
-        tipo,
-        preenchido_por: 'Cassio' // ou usuário logado
-      };
-      console.log(`Enviando dados para itemId ${itemId}:`, payload);
-      const resposta = await fetch(`http://localhost:3000/api/solicitacoes/itens/${itemId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+//       if (!resposta.ok) {
+//         throw new Error(`Erro ao salvar item ${itemId}`);
+//       }
+//     }
 
-      if (!resposta.ok) {
-        throw new Error(`Erro ao salvar item ${itemId}`);
-      }
-    }
+//     await Swal.fire('Preenchido!', 'Itens preenchidos com sucesso.', 'success');
+//     modalEquipamentos.hide();
+//     carregarSolicitacoes();
 
-    await Swal.fire('Preenchido!', 'Itens preenchidos com sucesso.', 'success');
-    modalEquipamentos.hide();
-    carregarSolicitacoes();
-
-  } catch (erro) {
-    console.error('Erro ao salvar os itens:', erro);
-    await Swal.fire('Erro!', 'Erro ao preencher os itens.', 'error');
-  }
-}
+//   } catch (erro) {
+//     console.error('Erro ao salvar os itens:', erro);
+//     await Swal.fire('Erro!', 'Erro ao preencher os itens.', 'error');
+//   }
+// }
 
 
 
@@ -676,3 +623,62 @@ async function salvarItensPreenchidos() {
 //     Swal.fire('Erro', 'Erro ao encerrar a solicitação.', 'error');
 //   }
 // }
+
+// document.getElementById('formEquipamentos').addEventListener('submit', async (e) => {
+//   e.preventDefault();
+
+//   const formData = new FormData(e.target);
+//   const dados = [];
+
+//   itensSolicitadosAtuais.forEach(item => {
+//     if (item.tipo === 'notebook') {
+//       dados.push({
+//         tipo: 'notebook',
+//         item_solicitado_id: item.id,
+//         modelo: formData.get(`modelo_notebook_${item.id}`),
+//         numero_patrimonio: formData.get(`numero_patrimonio_${item.id}`),
+//         sistema_operacional: formData.get(`sistema_operacional_${item.id}`),
+//         valor: formData.get(`valor_notebook_${item.id}`)
+//       });
+//     }
+//     if (item.tipo === 'celular') {
+//       dados.push({
+//         tipo: 'celular',
+//         item_solicitado_id: item.id,
+//         modelo: formData.get(`modelo_celular_${item.id}`),
+//         imei: formData.get(`imei_${item.id}`),
+//         numero: formData.get(`numero_${item.id}`),
+//         operadora: formData.get(`operadora_${item.id}`),
+//         valor: formData.get(`valor_celular_${item.id}`)
+//       });
+//     }
+//     if (item.tipo === 'chip') {
+//       dados.push({
+//         tipo: 'chip',
+//         item_solicitado_id: item.id,
+//         numero: formData.get(`numero_chip_${item.id}`),
+//         operadora: formData.get(`operadora_chip_${item.id}`),
+//         plano: formData.get(`plano_${item.id}`)
+//       });
+//     }
+//   });
+
+//   try {
+//     const resposta = await fetch(`http://localhost:3000/api/solicitacoes/${idSolicitacaoAtual}/aprovar-gerente`, {
+//       method: 'POST',
+//       headers: { 'Content-Type': 'application/json' },
+//       body: JSON.stringify({ equipamentos: dados })
+//     });
+
+//     if (resposta.ok) {
+//       alert('Equipamentos salvos com sucesso!');
+//       modalEquipamentos.hide();
+//       carregarSolicitacoes();
+//     } else {
+//       alert('Erro ao salvar os equipamentos.');
+//     }
+//   } catch (erro) {
+//     console.error(erro);
+//     alert('Erro na comunicação com o servidor.');
+//   }
+// });

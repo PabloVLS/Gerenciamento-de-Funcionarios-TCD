@@ -18,9 +18,15 @@ document.getElementById("loginForm").addEventListener("submit", async function (
   if (resultado.sucesso) {
     localStorage.setItem('usuarioCargo', resultado.cargo);
     localStorage.setItem('usuarioNome', resultado.nome);
-    localStorage.setItem('usuarioId', resultado.id); 
+    localStorage.setItem('usuarioId', resultado.id);
     window.location.href = "/home";
   } else {
-    alert("Usuário inexistente");
+    Swal.fire({
+      icon: 'error',
+      title: 'Falha no login',
+      text: 'Usuário inexistente ou senha incorreta.',
+      scrollbarPadding: false,
+      allowOutsideClick: false
+    });
   }
 });
