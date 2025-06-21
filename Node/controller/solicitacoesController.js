@@ -405,6 +405,27 @@ exports.aprovarFinanceiro = async (req, res) => {
   }
 };
 
+exports.recusarFinanceiro = async (req, res) => {
+  const { id } = req.params;
+  const { nome_financeiro } = req.body;
+
+  try {
+    await pool.query(`
+      UPDATE solicitacoes
+      SET aprovado_financeiro = false,
+          aprovado_por_financeiro = $1
+      WHERE id = $2
+    `, [nome_financeiro, id]);
+
+    res.sendStatus(200);
+  } catch (erro) {
+    console.error('Erro ao recusar como financeiro:', erro);
+    res.status(500).json({ erro: 'Erro ao recusar' });
+  }
+};
+
+
+
 exports.encerrarSolicitacao = async (req, res) => {
   const id = req.params.id;
   const client = await pool.connect();

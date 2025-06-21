@@ -17,3 +17,6 @@
   background-color: #e60000;
   color: #999;
 }
+.table-responsive {
+  overflow: visible !important; /* Isso é perigoso! */
+}

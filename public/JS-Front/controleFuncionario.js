@@ -59,8 +59,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       const opcoesMenu = `
         ${podeEditar ? '<button class="dropdown-item btn-editar">Editar</button>' : ''}
         <a class="dropdown-item" href="#" onclick="abrirModalEquipamentos(${func.id}, '${func.nome}')">Equipamentos</a>
-        ${podeSolicitarTroca ? `<a class="dropdown-item" href="#" onclick="abrirSolicitacaoTroca(${func.id}, '${func.nome}', '${func.status || 'ativo'}')">Solicitação de Troca</a>` : ''}
-        ${podeSolicitarNovo ? `<a class="dropdown-item" href="#" onclick="abrirSolicitacaoNovoFuncionario(${func.id}, '${func.nome}', '${func.status || 'ativo'}')">Solicitação Novo Funcionário</a>` : ''}
+        ${podeSolicitarTroca ? `<a class="dropdown-item" href="#" onclick="abrirSolicitacaoTroca(${func.id}, '${func.nome}', '${func.status || 'Ativo'}')">Solicitação de Troca</a>` : ''}
+        ${podeSolicitarNovo ? `<a class="dropdown-item" href="#" onclick="abrirSolicitacaoNovoFuncionario(${func.id}, '${func.nome}', '${func.status || 'Ativo'}')">Solicitação Novo Funcionário</a>` : ''}
         ${podeExcluir ? '<button class="dropdown-item btn-excluir text-danger">Excluir Funcionário</button>' : ''}
       `;
 
@@ -133,7 +133,7 @@ async function abrirModal(func) {
     const modalElement = document.getElementById('modalEdicao');
     const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('modalEdicao'));
     modal.show();
-
+    console.log("status do funcionario e ",func.status);
     document.getElementById('editId').value = func.id || '';
     document.getElementById('editNome').value = func.nome || '';
     document.getElementById('editCargo').value = func.cargo || '';
@@ -223,7 +223,7 @@ formEditar.addEventListener('submit', async (e) => {
 
 const modalEdicao = document.getElementById('modalEdicao');
 modalEdicao.addEventListener('hidden.bs.modal', () => {
-  // limpa os inputs de imagem (evita imagens presas)
+  // limpa os inputs de imagem pra evitar imagens presas
   document.getElementById('editFotoFunc').value = '';
   document.getElementById('editFotoCPF').value = '';
 });

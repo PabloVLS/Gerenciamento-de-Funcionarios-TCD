@@ -74,10 +74,13 @@ async function carregarSolicitacoes() {
         // Gerente já aprovou, mas ainda não preencheu os itens
         botoes += `<button class="btn btn-warning btn-sm" onclick="abrirModalPreenchimento(${s.solicitacao_id})">Preencher Itens</button>`;
         botoes += `<button class="btn btn-danger btn-sm" onclick="encerrarSolicitacao(${s.solicitacao_id})">Encerrar</button>`;
-      } else if (gerenteAprovou && itensPreenchidos && !financeiroAprovou) {
-        // Gerente aprovou e preencheu os itens, financeiro pode aprovar
+      } else if (gerenteAprovou && itensPreenchidos && !financeiroAprovou && !s.aprovado_por_financeiro) {
+        // Ainda não foi analisado pelo financeiro
         botoes += `<button class="btn btn-primary btn-sm" onclick="aprovarFinanceiro(${s.solicitacao_id})">Aprovar (Financeiro)</button>`;
-        botoes += `<button class="btn btn-danger btn-sm" onclick="encerrarSolicitacao(${s.solicitacao_id})">Encerrar</button>`;
+        botoes += `<button class="btn btn-danger btn-sm" onclick="recusarFinanceiro(${s.solicitacao_id})">Recusar</button>`;
+      } else if (gerenteAprovou && itensPreenchidos && s.aprovado_por_financeiro && !financeiroAprovou) {
+        // Já foi recusado pelo financeiro
+        botoes += `<button class="btn btn-secondary btn-sm" onclick="encerrarSolicitacao(${s.solicitacao_id})">Finalizar Solicitação</button>`;
       } else if (gerenteAprovou && itensPreenchidos && financeiroAprovou) {
         // Gerente aprovou e preencheu os itens, financeiro pode aprovar
         botoes += `<button class="btn btn-secondary btn-sm" onclick="finalizarSolicitacao(${s.solicitacao_id})">Finalizar Solicitação</button>`;
@@ -93,7 +96,14 @@ async function carregarSolicitacoes() {
             <p><strong>Observações:</strong> ${s.observacoes || 'Nenhuma'}</p>
             <p><strong>Criado por:</strong> ${s.nome_criador ? s.nome_criador : 'Informação não disponível'}</p>
             <p><strong>Aprovado pelo gerente:</strong> ${s.aprovado_por_gerente ? s.aprovado_por_gerente : 'Ainda não aprovado'}</p>
-            <p><strong>Aprovado pelo financeiro:</strong> ${s.aprovado_por_financeiro ? s.aprovado_por_financeiro : 'Ainda não aprovado'}</p>
+            <p><strong>Status Financeiro:</strong> ${
+                s.aprovado_financeiro === true
+                  ? `Aprovado por ${s.aprovado_por_financeiro}`
+                  : s.aprovado_financeiro === false && s.aprovado_por_financeiro
+                    ? `Recusado por ${s.aprovado_por_financeiro}`
+                    : 'Ainda não aprovado'
+              }
+            </p>
 
 
             <div>
@@ -324,6 +334,38 @@ async function aprovarFinanceiro(solicitacaoId) {
   }
 }
 
+async function recusarFinanceiro(solicitacaoId) {/*mudei aqui */
+  if (!temPermissao(['Financeiro'])) {
+    await Swal.fire({
+      icon: 'error',
+      title: 'Acesso negado',
+      text: 'Você não tem permissão para recusar como financeiro.',
+    });
+    return;
+  }
+
+  const nomeFinanceiro = localStorage.getItem('usuarioNome');
+  if (!nomeFinanceiro) return;
+
+  try {
+    const resposta = await fetch(`http://localhost:3000/api/solicitacoes/${solicitacaoId}/recusar-financeiro`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nome_financeiro: nomeFinanceiro })
+    });
+
+    if (!resposta.ok) throw new Error('Erro na recusa');
+
+    await Swal.fire('Recusado!', 'Solicitação recusada pelo financeiro.', 'info');
+    carregarSolicitacoes();
+  } catch (erro) {
+    console.error(erro);
+    await Swal.fire('Erro', 'Erro ao recusar como financeiro.', 'error');
+  }
+}
+
+
+
 async function finalizarSolicitacao(id) {
   if (!temPermissao(['Gerente'])) {
     await Swal.fire({
@@ -409,67 +451,66 @@ async function encerrarSolicitacao(id) {
 
 
 
-//NÂO USADO MAIS
-// async function salvarItensPreenchidos() {
-//   const form = document.getElementById('formEquipamentos');
-//   const formData = new FormData(form);
-//   const dados = {};
+async function salvarItensPreenchidos() {
+  const form = document.getElementById('formEquipamentos');
+  const formData = new FormData(form);
+  const dados = {};
 
-//   // Agrupar os dados por ID
-//   for (const [chave, valor] of formData.entries()) {
-//     const match = chave.match(/^(.+)_([0-9]+)$/); // Ex: modelo_notebook_4
-//     if (match) {
-//       const campo = match[1]; // modelo_notebook, numero_chip, etc.
-//       const id = match[2];
+  // Agrupar os dados por ID
+  for (const [chave, valor] of formData.entries()) {
+    const match = chave.match(/^(.+)_([0-9]+)$/); // Ex: modelo_notebook_4
+    if (match) {
+      const campo = match[1]; // modelo_notebook, numero_chip, etc.
+      const id = match[2];
 
-//       if (!dados[id]) dados[id] = {};
-//       dados[id][campo] = valor.trim();
-//     }
-//   }
+      if (!dados[id]) dados[id] = {};
+      dados[id][campo] = valor.trim();
+    }
+  }
 
-//   try {
-//     console.log("Dados agrupados por itemId:", dados);
-//     for (const itemId in dados) {
-//       const campos = dados[itemId];
+  try {
+    console.log("Dados agrupados por itemId:", dados);
+    for (const itemId in dados) {
+      const campos = dados[itemId];
 
-//       let tipo = '';
-//       if (Object.keys(campos).some(c => c.includes('notebook'))) {
-//         tipo = 'notebook';
-//       } else if (Object.keys(campos).some(c => c.includes('celular'))) {
-//         tipo = 'celular';
-//       } else if (Object.keys(campos).some(c => c.includes('chip'))) {
-//         tipo = 'chip';
-//       } else {
-//         console.warn(`Tipo não identificado para o item ${itemId}`);
-//         continue;
-//       }
+      let tipo = '';
+      if (Object.keys(campos).some(c => c.includes('notebook'))) {
+        tipo = 'notebook';
+      } else if (Object.keys(campos).some(c => c.includes('celular'))) {
+        tipo = 'celular';
+      } else if (Object.keys(campos).some(c => c.includes('chip'))) {
+        tipo = 'chip';
+      } else {
+        console.warn(`Tipo não identificado para o item ${itemId}`);
+        continue;
+      }
 
-//       const payload = {
-//         ...campos,
-//         tipo,
-//         preenchido_por: 'Cassio' // ou usuário logado
-//       };
-//       console.log(`Enviando dados para itemId ${itemId}:`, payload);
-//       const resposta = await fetch(`http://localhost:3000/api/solicitacoes/itens/${itemId}`, {
-//         method: 'PUT',
-//         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify(payload)
-//       });
+      const payload = {
+        ...campos,
+        tipo,
+        preenchido_por: 'Cassio' // ou usuário logado
+      };
+      console.log(`Enviando dados para itemId ${itemId}:`, payload);
+      const resposta = await fetch(`http://localhost:3000/api/solicitacoes/itens/${itemId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
 
-//       if (!resposta.ok) {
-//         throw new Error(`Erro ao salvar item ${itemId}`);
-//       }
-//     }
+      if (!resposta.ok) {
+        throw new Error(`Erro ao salvar item ${itemId}`);
+      }
+    }
 
-//     await Swal.fire('Preenchido!', 'Itens preenchidos com sucesso.', 'success');
-//     modalEquipamentos.hide();
-//     carregarSolicitacoes();
+    await Swal.fire('Preenchido!', 'Itens preenchidos com sucesso.', 'success');
+    modalEquipamentos.hide();
+    carregarSolicitacoes();
 
-//   } catch (erro) {
-//     console.error('Erro ao salvar os itens:', erro);
-//     await Swal.fire('Erro!', 'Erro ao preencher os itens.', 'error');
-//   }
-// }
+  } catch (erro) {
+    console.error('Erro ao salvar os itens:', erro);
+    await Swal.fire('Erro!', 'Erro ao preencher os itens.', 'error');
+  }
+}
 
 
 

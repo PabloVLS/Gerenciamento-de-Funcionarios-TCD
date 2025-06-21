@@ -6,6 +6,8 @@ router.put('/:id/aprovar-gerente', solicitacoesController.aprovarGerente);
 
 router.put('/:id/aprovar-financeiro', solicitacoesController.aprovarFinanceiro);
 
+router.put('/:id/recusar-financeiro', solicitacoesController.recusarFinanceiro);/*mudei aqui */
+
 router.post('/', solicitacoesController.criarSolicitacao);
 
 router.put('/itens/:id', solicitacoesController.preencherItem);

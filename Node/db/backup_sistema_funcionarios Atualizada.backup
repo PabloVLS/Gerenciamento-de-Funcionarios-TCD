@@ -20,6 +20,7 @@ CREATE TABLE usuarios (atualizada)(
     email VARCHAR(100) UNIQUE NOT NULL,
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+INSERT INTO usuarios (nome, cargo, nome_usuario, senha, email)VALUES ('Pablo', 'Gerente', 'Pablo', '123', 'pablo@example.com');
 
 
 -- 2. Tabela de solicitações
@@ -52,7 +53,7 @@ CREATE TABLE itens_solicitados (
 
 CREATE TABLE celulares (
     id SERIAL PRIMARY KEY,
-    item_solicitado_id INTEGER REFERENCES itens_solicitados(id),
+    item_solicitado_id INTEGER
     modelo VARCHAR(100),
     imei VARCHAR(30),
     numero VARCHAR(20),
@@ -64,7 +65,7 @@ ADD COLUMN preco NUMERIC(10, 2);
 
 CREATE TABLE chips (
     id SERIAL PRIMARY KEY,
-    item_solicitado_id INTEGER REFERENCES itens_solicitados(id),
+    item_solicitado_id INTEGER
     numero VARCHAR(20),
     operadora VARCHAR(50),
     plano VARCHAR(100)
@@ -72,7 +73,7 @@ CREATE TABLE chips (
 
 CREATE TABLE notebooks (
     id SERIAL PRIMARY KEY,
-    item_solicitado_id INTEGER REFERENCES itens_solicitados(id),
+    item_solicitado_id INTEGER
     modelo VARCHAR(100),
     numero_patrimonio VARCHAR(50),
     sistema_operacional VARCHAR(100)

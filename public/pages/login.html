@@ -25,42 +25,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/JS-Front/login.js"></script>
 
-   <!-- <script>
-        // Seleciona o formulário com id 'loginForm' e adiciona um ouvinte de evento para o envio do formulário
-        document.getElementById("loginForm").addEventListener("submit", async function (e) {
-    
-            // Impede o envio padrão do formulário (ou seja, evita que a página seja recarregada)
-            e.preventDefault();
-    
-            // Cria um objeto FormData com os dados preenchidos no formulário
-            const formData = new FormData(this);
-    
-            // Cria um objeto com os dados extraídos do formulário (usuário e senha)
-            const dados = {
-                usuarios: formData.get("usuario"), // Obtém o valor do campo com name="usuario"
-                senha: formData.get("senha")       // Obtém o valor do campo com name="senha"
-            };
-    
-            // Envia uma requisição POST para o endpoint /login com os dados convertidos em JSON
-            const resposta = await fetch("/login", {
-                method: "POST", // Define o método da requisição
-                headers: { "Content-Type": "application/json" }, // Define o tipo de conteúdo como JSON
-                body: JSON.stringify(dados) // Converte o objeto 'dados' em uma string JSON e envia no corpo da requisição
-            });
-    
-            // Aguarda a resposta do servidor e converte o resultado em um objeto JavaScript
-            const resultado = await resposta.json();
-    
-            // Se o login for bem-sucedido (servidor retorna sucesso = true), redireciona para a página inicial
-            if (resultado.sucesso) {
-                window.location.href = "/home"; // Redireciona para a rota "/home"
-            } else {
-                // Se o login falhar, exibe um alerta na tela informando erro
-                alert("Usuário inexistente");
-            }
-        });
-    </script>
-    -->
+
 
 </body>
 </html>
